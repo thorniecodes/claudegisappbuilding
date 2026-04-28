@@ -35,6 +35,13 @@ const TOUR_LOOPS = {
   }
 };
 
+function getMuralColor(id) {
+  for (const loop of Object.values(TOUR_LOOPS)) {
+    if (loop.mural_ids.includes(id)) return loop.color;
+  }
+  return '#888880'; // neutral for murals not assigned to a loop
+}
+
 // ── STATE ──────────────────────────────────────────────────────────────────────
 const state = {
   markers: new Map(),   // id → { marker, props, lat, lng }
@@ -129,8 +136,8 @@ fetch('./data/murals.geojson')
   });
 
 // ── PIN ICON ───────────────────────────────────────────────────────────────────
-function createPinIcon(title, isVisited = false, tourNumber = null) {
-  const fill = isVisited ? '#555550' : '#E8401C';
+function createPinIcon(title, isVisited = false, tourNumber = null, color = '#E8401C') {
+  const fill = isVisited ? '#555550' : color;
   const inner = tourNumber !== null
     ? `<text x="12" y="16" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="#F5F0EB">${tourNumber}</text>`
     : `<circle cx="12" cy="12" r="3.5" fill="#F5F0EB"/>`;
@@ -156,7 +163,7 @@ function initMarkers(features) {
     const [lat, lng] = props.latLng;
     const isVisited = state.visited.has(props.id);
     const marker = L.marker([lat, lng], {
-      icon: createPinIcon(props.title, isVisited)
+      icon: createPinIcon(props.title, isVisited, null, getMuralColor(props.id))
     });
     marker.on('click', () => handlePinClick(props, lat, lng, marker));
     marker.addTo(map);
@@ -275,7 +282,7 @@ function toggleVisited(id) {
   if (entry) {
     const stopIndex = state.tour ? state.tour.stops.indexOf(id) : -1;
     const tourNum = stopIndex >= 0 ? stopIndex + 1 : null;
-    entry.marker.setIcon(createPinIcon(entry.props.title, isNowVisited, tourNum));
+    entry.marker.setIcon(createPinIcon(entry.props.title, isNowVisited, tourNum, getMuralColor(id)));
   }
 
   const container = isMobile()
@@ -404,63 +411,69 @@ function resetFilters() {
 function buildFilterControls(container) {
   container.innerHTML = `
     <div class="filter-section">
-      <h3>Neighborhood</h3>
-      ${NEIGHBORHOODS.map(n => `
-        <label class="filter-option">
-          <input type="checkbox" data-filter="neighborhood" value="${n}" ${state.filters.neighborhoods.has(n) ? 'checked' : ''}>
-          ${n}
-        </label>`).join('')}
+      <h3>Year</h3>
+      <div class="sf-row">
+        ${YEARS.map(y => `<button class="chip" data-fc="year" data-val="${y}">${y}</button>`).join('')}
+      </div>
     </div>
     <div class="filter-section">
-      <h3>Year</h3>
-      ${YEARS.map(y => `
-        <label class="filter-option">
-          <input type="checkbox" data-filter="year" value="${y}" ${state.filters.years.has(y) ? 'checked' : ''}>
-          ${y}
-        </label>`).join('')}
+      <h3>Neighborhood</h3>
+      <div class="sf-row">
+        ${NEIGHBORHOODS.map(n => `<button class="chip" data-fc="neighborhood" data-val="${n}">${n}</button>`).join('')}
+      </div>
     </div>
     <div class="filter-section">
       <h3>Artist Origin</h3>
-      ${ORIGIN_BUCKETS.map(o => `
-        <label class="filter-option">
-          <input type="radio" name="origin" data-filter="origin" value="${o.value}" ${state.filters.originBucket === o.value ? 'checked' : ''}>
-          ${o.label}
-        </label>`).join('')}
+      <div class="sf-row">
+        ${ORIGIN_BUCKETS.filter(o => o.value !== 'all').map(o => `<button class="chip" data-fc="origin" data-val="${o.value}">${o.label}</button>`).join('')}
+      </div>
     </div>
     <div class="filter-section">
-      <h3>Visited Status</h3>
-      ${VISITED_OPTIONS.map(v => `
-        <label class="filter-option">
-          <input type="radio" name="visitedStatus" data-filter="visited" value="${v.value}" ${state.filters.visitedStatus === v.value ? 'checked' : ''}>
-          ${v.label}
-        </label>`).join('')}
+      <h3>Visited</h3>
+      <div class="sf-row">
+        ${VISITED_OPTIONS.filter(v => v.value !== 'all').map(v => `<button class="chip" data-fc="visited" data-val="${v.value}">${v.label}</button>`).join('')}
+      </div>
     </div>
     <div class="filter-section">
       <h3>Mural Status</h3>
-      <label class="filter-option">
-        <input type="checkbox" data-filter="hidePartial" ${state.filters.hidePartial ? 'checked' : ''}>
-        Hide partial/removed murals
-      </label>
+      <div class="sf-row">
+        <button class="chip" data-fc="partial" data-val="true">Show partial/removed</button>
+      </div>
     </div>`;
 
-  container.addEventListener('change', e => {
-    const input = e.target;
-    const filter = input.dataset.filter;
-    if (filter === 'neighborhood') {
-      if (input.checked) state.filters.neighborhoods.add(input.value);
-      else state.filters.neighborhoods.delete(input.value);
-    } else if (filter === 'year') {
-      if (input.checked) state.filters.years.add(input.value);
-      else state.filters.years.delete(input.value);
-    } else if (filter === 'origin') {
-      state.filters.originBucket = input.value;
-    } else if (filter === 'visited') {
-      state.filters.visitedStatus = input.value;
-    } else if (filter === 'hidePartial') {
-      state.filters.hidePartial = input.checked;
+  updateFilterChipStates(container);
+
+  container.addEventListener('click', e => {
+    const chip = e.target.closest('[data-fc]');
+    if (!chip) return;
+    const type = chip.dataset.fc, val = chip.dataset.val;
+    if (type === 'year') {
+      state.filters.years.has(val) ? state.filters.years.delete(val) : state.filters.years.add(val);
+    } else if (type === 'neighborhood') {
+      state.filters.neighborhoods.has(val) ? state.filters.neighborhoods.delete(val) : state.filters.neighborhoods.add(val);
+    } else if (type === 'origin') {
+      state.filters.originBucket = state.filters.originBucket === val ? 'all' : val;
+    } else if (type === 'visited') {
+      state.filters.visitedStatus = state.filters.visitedStatus === val ? 'all' : val;
+    } else if (type === 'partial') {
+      state.filters.hidePartial = !state.filters.hidePartial;
     }
     applyFilters();
-    if (!isMobile()) buildSidebarFilters(); // refresh chip state
+    updateFilterChipStates(container);
+    buildSidebarFilters();
+  });
+}
+
+function updateFilterChipStates(container) {
+  container.querySelectorAll('[data-fc]').forEach(chip => {
+    const type = chip.dataset.fc, val = chip.dataset.val;
+    let active = false;
+    if (type === 'year') active = state.filters.years.has(val);
+    else if (type === 'neighborhood') active = state.filters.neighborhoods.has(val);
+    else if (type === 'origin') active = state.filters.originBucket === val;
+    else if (type === 'visited') active = state.filters.visitedStatus === val;
+    else if (type === 'partial') active = !state.filters.hidePartial;
+    chip.classList.toggle('active', active);
   });
 }
 
@@ -602,7 +615,7 @@ function startTour(loopKey) {
     } else {
       marker.addTo(map);
       marker.setOpacity(1);
-      marker.setIcon(createPinIcon(props.title, state.visited.has(id), stopIndex + 1));
+      marker.setIcon(createPinIcon(props.title, state.visited.has(id), stopIndex + 1, loop.color));
     }
   });
 
@@ -645,7 +658,7 @@ function exitTour() {
   // Restore all markers
   state.markers.forEach(({ marker, props }, id) => {
     marker.setOpacity(1);
-    marker.setIcon(createPinIcon(props.title, state.visited.has(id)));
+    marker.setIcon(createPinIcon(props.title, state.visited.has(id), null, getMuralColor(id)));
   });
 
   // Re-enable filters
@@ -662,7 +675,7 @@ function exitTour() {
     state.savedFilters = null;
     applyFilters();
     buildSidebarFilters();
-    buildFilterPanel();
+    updateFilterChipStates(document.getElementById('filter-panel-body'));
   }
 
   state.tour = null;
@@ -700,7 +713,8 @@ document.getElementById('filter-overlay')?.addEventListener('click', closeFilter
 document.getElementById('filter-clear')?.addEventListener('click', () => {
   resetFilters();
   applyFilters();
-  buildFilterPanel(); // re-render checkboxes
+  updateFilterChipStates(document.getElementById('filter-panel-body'));
+  buildSidebarFilters();
   closeFilterPanel();
 });
 
