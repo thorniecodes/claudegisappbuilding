@@ -1,5 +1,5 @@
 # claudegisappbuilding
-[https://www.orurisa.org/GIS-in-Action-Workshops#VibeCodeYourOwnGISApp](GIS in Action Vibe Coding with Claude Workshop 2026-04-28)
+[https://www.orurisa.org/GIS-in-Action-Workshops#VibeCodeYourOwnGISApp](Learning how to build a GIS app at the GIS in Action Conference. Vibe Coding with Claude Workshop 2026-04-28)
 
 # Eugene Mural Tour
 An interactive, mobile-friendly web map for exploring the public murals of Eugene, Oregon. Built as a self-guided walking tour, this app lets residents and visitors discover the city's vibrant outdoor art scene — from neighborhood walls in the Whiteaker to landmark pieces in downtown.
