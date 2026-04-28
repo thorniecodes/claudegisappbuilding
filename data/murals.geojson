@@ -16,6 +16,7 @@
         "address": "62 W Broadway (Cowfish alley)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/Acidum.jpeg",
         "website": "https://www.20x21eug.com/murals/acidum-project/",
         "description": "Mural by Brazilian artist collective Acidum Project, founders Robézio Marquez and Tereza De Quinta. The first mural commissioned for the 20x21EUG project.",
         "status": "active"
@@ -70,6 +71,7 @@
         "address": "411 W 4th Ave (Web Picture Frames / Vistra Framing)",
         "neighborhood": "Whiteaker",
         "project": "20x21EUG",
+        "photo": "./assets/images/Hua.jpeg",
         "website": "https://www.20x21eug.com/murals/hua-tunan/",
         "description": "Born in 1991 in Foshan, China, Tunan's style combines traditional Chinese ink wash painting with Western graffiti. The vivid red wall and black dragon represent Chinese luck and folklore, while black paint drips symbolize Eugene's rain.",
         "status": "active"
