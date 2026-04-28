@@ -8,6 +8,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.0935, 44.0493] },
       "properties": {
         "id": 1,
+        "latLng": [44.0493, -123.0935],
         "title": "Sidewalk Games and Kindness",
         "artist": "Acidum Project (Robézio Marquez & Tereza De Quinta)",
         "origin": "Brazil",
@@ -25,6 +26,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.092892, 44.048658] },
       "properties": {
         "id": 2,
+        "latLng": [44.048658, -123.092892],
         "title": "Untitled (West Wall)",
         "artist": "Beau Stanton",
         "origin": "USA",
@@ -42,6 +44,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.097944, 44.057074] },
       "properties": {
         "id": 3,
+        "latLng": [44.057074, -123.097944],
         "title": "Untitled (Bees & Honeycomb)",
         "artist": "Steven Lopez",
         "origin": "USA",
@@ -59,6 +62,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.098809, 44.055901] },
       "properties": {
         "id": 4,
+        "latLng": [44.055901, -123.098809],
         "title": "Tiger and Dragon",
         "artist": "Hua Tunan",
         "origin": "China",
@@ -76,6 +80,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.092976, 44.048658] },
       "properties": {
         "id": 5,
+        "latLng": [44.048958, -123.092976],
         "title": "Discussion about the Red",
         "artist": "Franco Fasoli (JAZ)",
         "origin": "Argentina",
@@ -93,6 +98,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.107976, 44.053929] },
       "properties": {
         "id": 6,
+        "latLng": [44.053929, -123.107976],
         "title": "Untitled (Half-Human Creatures)",
         "artist": "Franco Fasoli (JAZ)",
         "origin": "Argentina",
@@ -110,6 +116,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.095623, 44.049603] },
       "properties": {
         "id": 7,
+        "latLng": [44.049603, -123.095623],
         "title": "Untitled",
         "artist": "Telmo Miel (Telmo Pieper & Miel Krutzmann)",
         "origin": "Netherlands",
@@ -127,6 +134,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.094749, 44.047843] },
       "properties": {
         "id": 8,
+        "latLng": [44.047843, -123.094749],
         "title": "Untitled (Faceless Women & Plants)",
         "artist": "Hyuro",
         "origin": "Spain/Argentina",
@@ -144,6 +152,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.092045, 44.045268] },
       "properties": {
         "id": 9,
+        "latLng": [44.045268, -123.092045],
         "title": "Untitled (Geisha)",
         "artist": "Hush",
         "origin": "United Kingdom",
@@ -161,6 +170,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.097795, 44.056341] },
       "properties": {
         "id": 10,
+        "latLng": [44.056341, -123.097795],
         "title": "Untitled (Silo Mural)",
         "artist": "Ila Rose",
         "origin": "USA (Eugene, OR)",
@@ -178,6 +188,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.090935, 44.049611] },
       "properties": {
         "id": 11,
+        "latLng": [44.049611, -123.090935],
         "title": "The Pied Piper",
         "artist": "Blek le Rat (Xavier Prou)",
         "origin": "France",
@@ -195,6 +206,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.0925, 44.0490] },
       "properties": {
         "id": 12,
+        "latLng": [44.0494, -123.0928],
         "title": "Various Street Installations",
         "artist": "Dan Witz",
         "origin": "USA (Brooklyn, NY)",
@@ -212,6 +224,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.109028, 44.057861] },
       "properties": {
         "id": 13,
+        "latLng": [44.057861, -123.109028],
         "title": "Untitled (Mammoth Animals in Metamorphosis)",
         "artist": "Alexis Diaz",
         "origin": "Puerto Rico",
@@ -229,6 +242,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.090444, 44.032167] },
       "properties": {
         "id": 14,
+        "latLng": [44.032167, -123.090444],
         "title": "Untitled (Woman Musician)",
         "artist": "Shamsia Hassani",
         "origin": "Afghanistan",
@@ -246,6 +260,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.0925, 44.051611] },
       "properties": {
         "id": 15,
+        "latLng": [44.051611, -123.0925],
         "title": "Untitled (Japanese Cultural Stencil)",
         "artist": "AIKO",
         "origin": "Japan/USA",
@@ -263,6 +278,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.095500, 44.051611] },
       "properties": {
         "id": 16,
+        "latLng": [44.051611, -123.0955],
         "title": "Untitled (Portrait of Nepali Elder)",
         "artist": "Kiran Maharjan (H11235)",
         "origin": "Nepal",
@@ -280,6 +296,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.092528, 44.045389] },
       "properties": {
         "id": 17,
+        "latLng": [44.045389, -123.092528],
         "title": "Ibis and Salmon",
         "artist": "Bayne Gardner",
         "origin": "USA (Eugene, OR)",
@@ -297,6 +314,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.090500, 44.044800] },
       "properties": {
         "id": 18,
+        "latLng": [44.044800, -123.090500],
         "title": "Untitled (Pink Donut Bonus Mural)",
         "artist": "Bayne Gardner",
         "origin": "USA (Eugene, OR)",
@@ -314,6 +332,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.092456, 44.051587] },
       "properties": {
         "id": 19,
+        "latLng": [44.051587, -123.092456],
         "title": "Jesse Owens Portrait",
         "artist": "Matt Small",
         "origin": "United Kingdom",
@@ -331,6 +350,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.091611, 44.047028] },
       "properties": {
         "id": 20,
+        "latLng": [44.047028, -123.091611],
         "title": "Martin Luther King Jr.",
         "artist": "WK Interact",
         "origin": "France/USA",
@@ -348,6 +368,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.092444, 44.044056] },
       "properties": {
         "id": 21,
+        "latLng": [44.044056, -123.092444],
         "title": "Untitled (Surreal Urban Scene)",
         "artist": "Fintan Magee",
         "origin": "Australia",
@@ -365,6 +386,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.112167, 44.051917] },
       "properties": {
         "id": 22,
+        "latLng": [44.051917, -123.112167],
         "title": "Meesie",
         "artist": "Sidney Waerts (SIT)",
         "origin": "Netherlands",
@@ -382,6 +404,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.096778, 44.050833] },
       "properties": {
         "id": 23,
+        "latLng": [44.050833, -123.096778],
         "title": "Commentary on Global Warming",
         "artist": "Kari Johnson",
         "origin": "USA (Eugene, OR)",
@@ -399,6 +422,7 @@
       "geometry": { "type": "Point", "coordinates": [-123.134389, 44.047556] },
       "properties": {
         "id": 24,
+        "latLng": [44.047556, -123.134389],
         "title": "Untitled (Pigeons & City Residents)",
         "artist": "Adele Renault",
         "origin": "Belgium/USA",

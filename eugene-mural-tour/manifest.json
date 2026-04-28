@@ -1,0 +1,21 @@
+{
+  "name": "20x21EUG Mural Tour",
+  "short_name": "Mural Tour",
+  "description": "Self-guided walking tour of 20x21EUG murals in Eugene, Oregon",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0D0D0D",
+  "theme_color": "#E8401C",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Ccircle cx='96' cy='96' r='96' fill='%23E8401C'/%3E%3Ctext x='96' y='130' text-anchor='middle' font-family='Inter,Arial,sans-serif' font-size='100' font-weight='700' fill='%23F5F0EB'%3EM%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='256' fill='%23E8401C'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-family='Inter,Arial,sans-serif' font-size='260' font-weight='700' fill='%23F5F0EB'%3EM%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
