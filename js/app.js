@@ -692,17 +692,8 @@ function startTour(loopKey) {
   )];
   tourNeighborhoods.forEach(n => showNeighborhoodBoundary(n, loop.color));
 
-  // Draw walking route line
-  const routeCoords = loop.mural_ids
-    .map(id => state.markers.get(id))
-    .filter(Boolean)
-    .map(({ lat, lng }) => [lat, lng]);
-  state.tourRoute = L.polyline(routeCoords, {
-    color: loop.color,
-    weight: 4,
-    opacity: 0.75,
-    dashArray: '8, 10'
-  }).addTo(map);
+  // Fetch walking route from Mapbox Directions API, fall back to straight lines
+  fetchAndDrawTourRoute(loop);
 
   document.getElementById('tour-progress').classList.remove('hidden');
   document.body.classList.add('tour-active');
@@ -735,6 +726,41 @@ function goToTourStop(index) {
 
   // Open detail
   openDetail(props);
+}
+
+async function fetchAndDrawTourRoute(loop) {
+  const waypoints = loop.mural_ids
+    .map(id => state.markers.get(id))
+    .filter(Boolean)
+    .map(({ lng, lat }) => `${lng},${lat}`)  // Mapbox expects lng,lat
+    .join(';');
+
+  try {
+    const res = await fetch(
+      `https://api.mapbox.com/directions/v5/mapbox/walking/${waypoints}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+    );
+    const data = await res.json();
+    if (data.routes && data.routes.length > 0) {
+      const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+      state.tourRoute = L.polyline(coords, {
+        color: loop.color, weight: 4, opacity: 0.8, dashArray: '8, 10'
+      }).addTo(map);
+    } else {
+      drawStraightLineRoute(loop);
+    }
+  } catch {
+    drawStraightLineRoute(loop);
+  }
+}
+
+function drawStraightLineRoute(loop) {
+  const coords = loop.mural_ids
+    .map(id => state.markers.get(id))
+    .filter(Boolean)
+    .map(({ lat, lng }) => [lat, lng]);
+  state.tourRoute = L.polyline(coords, {
+    color: loop.color, weight: 4, opacity: 0.75, dashArray: '8, 10'
+  }).addTo(map);
 }
 
 function exitTour() {
