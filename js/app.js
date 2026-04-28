@@ -136,18 +136,23 @@ fetch('https://gis.eugene-or.gov/arcgis/rest/services/PDD/PDDBoundaries/MapServe
   .then(data => { neighborhoodGeoJSON = data; })
   .catch(() => {}); // non-critical — boundaries simply won't show if unavailable
 
-function showNeighborhoodBoundaries(neighborhoodNames, color) {
-  clearBoundaryLayers();
-  if (!neighborhoodGeoJSON) return;
+function getNeighborhoodColor(neighborhood) {
+  for (const loop of Object.values(TOUR_LOOPS)) {
+    if (loop.mural_ids.some(id => state.markers.get(id)?.props.neighborhood === neighborhood)) {
+      return loop.color;
+    }
+  }
+  return '#888880';
+}
 
-  const cityNames = neighborhoodNames
-    .map(n => NEIGHBORHOOD_NAME_MAP[n])
-    .filter(Boolean);
-  if (cityNames.length === 0) return;
+function showNeighborhoodBoundary(neighborhoodName, color) {
+  if (!neighborhoodGeoJSON) return;
+  const cityName = NEIGHBORHOOD_NAME_MAP[neighborhoodName];
+  if (!cityName) return;
 
   const matched = {
     ...neighborhoodGeoJSON,
-    features: neighborhoodGeoJSON.features.filter(f => cityNames.includes(f.properties.NAME))
+    features: neighborhoodGeoJSON.features.filter(f => f.properties.NAME === cityName)
   };
   if (matched.features.length === 0) return;
 
@@ -450,12 +455,11 @@ function applyFilters() {
     else if (map.hasLayer(marker)) map.removeLayer(marker);
   });
 
-  // Show neighborhood boundaries when filtering by neighborhood
+  // Show neighborhood boundaries when filtering by neighborhood, each in its tour color
   if (!state.tour) {
+    clearBoundaryLayers();
     if (f.neighborhoods.size > 0) {
-      showNeighborhoodBoundaries([...f.neighborhoods], 'var(--accent)');
-    } else {
-      clearBoundaryLayers();
+      f.neighborhoods.forEach(n => showNeighborhoodBoundary(n, getNeighborhoodColor(n)));
     }
   }
 
@@ -681,11 +685,12 @@ function startTour(loopKey) {
     }
   });
 
-  // Show neighborhood boundaries for this tour's pins
+  // Show neighborhood boundaries for this tour's pins in the tour's color
+  clearBoundaryLayers();
   const tourNeighborhoods = [...new Set(
     loop.mural_ids.map(id => state.markers.get(id)?.props.neighborhood).filter(Boolean)
   )];
-  showNeighborhoodBoundaries(tourNeighborhoods, loop.color);
+  tourNeighborhoods.forEach(n => showNeighborhoodBoundary(n, loop.color));
 
   // Draw walking route line
   const routeCoords = loop.mural_ids
