@@ -131,7 +131,7 @@ map.on('click', () => {
 });
 
 // ── NEIGHBORHOOD BOUNDARIES ────────────────────────────────────────────────────
-fetch('https://gis.eugene-or.gov/arcgis/rest/services/PDD/PDDBoundaries/MapServer/9/query?where=1%3D1&outFields=NAME&f=geojson')
+fetch('./data/Eugene_Neighborhoods_-_HUB.geojson')
   .then(r => r.json())
   .then(data => { neighborhoodGeoJSON = data; })
   .catch(() => {}); // non-critical — boundaries simply won't show if unavailable
