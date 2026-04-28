@@ -48,6 +48,7 @@ const state = {
   activeId: null,
   visited: new Set(getVisited()),
   tour: null,           // { loopKey, stops[], currentIndex } | null
+  tourRoute: null,      // Leaflet polyline for active tour
   savedFilters: null,
   filters: {
     neighborhoods: new Set(),
@@ -619,6 +620,18 @@ function startTour(loopKey) {
     }
   });
 
+  // Draw walking route line
+  const routeCoords = loop.mural_ids
+    .map(id => state.markers.get(id))
+    .filter(Boolean)
+    .map(({ lat, lng }) => [lat, lng]);
+  state.tourRoute = L.polyline(routeCoords, {
+    color: loop.color,
+    weight: 4,
+    opacity: 0.75,
+    dashArray: '8, 10'
+  }).addTo(map);
+
   document.getElementById('tour-progress').classList.remove('hidden');
   document.body.classList.add('tour-active');
 
@@ -677,6 +690,8 @@ function exitTour() {
     buildSidebarFilters();
     updateFilterChipStates(document.getElementById('filter-panel-body'));
   }
+
+  if (state.tourRoute) { map.removeLayer(state.tourRoute); state.tourRoute = null; }
 
   state.tour = null;
   if (state.activeId !== null) { deactivateMarker(state.activeId); state.activeId = null; }
