@@ -42,13 +42,24 @@ function getMuralColor(id) {
   return '#888880'; // neutral for murals not assigned to a loop
 }
 
+// Maps the neighborhood names used in mural properties → City of Eugene GIS names
+const NEIGHBORHOOD_NAME_MAP = {
+  'Downtown':    'Downtown Neighborhood Association',
+  'Whiteaker':   'Whiteaker Community Council',
+  'West Eugene': 'West Eugene Community Organization',
+  'South Eugene': null  // no single matching boundary — skipped
+};
+
 // ── STATE ──────────────────────────────────────────────────────────────────────
+let neighborhoodGeoJSON = null;
+
 const state = {
   markers: new Map(),   // id → { marker, props, lat, lng }
   activeId: null,
   visited: new Set(getVisited()),
   tour: null,           // { loopKey, stops[], currentIndex } | null
   tourRoute: null,      // Leaflet polyline for active tour
+  boundaryLayers: [],   // active neighborhood boundary polygons
   savedFilters: null,
   filters: {
     neighborhoods: new Set(),
@@ -118,6 +129,46 @@ map.on('click', () => {
     state.activeId = null;
   }
 });
+
+// ── NEIGHBORHOOD BOUNDARIES ────────────────────────────────────────────────────
+fetch('https://gis.eugene-or.gov/arcgis/rest/services/PDD/PDDBoundaries/MapServer/9/query?where=1%3D1&outFields=NAME&f=geojson')
+  .then(r => r.json())
+  .then(data => { neighborhoodGeoJSON = data; })
+  .catch(() => {}); // non-critical — boundaries simply won't show if unavailable
+
+function showNeighborhoodBoundaries(neighborhoodNames, color) {
+  clearBoundaryLayers();
+  if (!neighborhoodGeoJSON) return;
+
+  const cityNames = neighborhoodNames
+    .map(n => NEIGHBORHOOD_NAME_MAP[n])
+    .filter(Boolean);
+  if (cityNames.length === 0) return;
+
+  const matched = {
+    ...neighborhoodGeoJSON,
+    features: neighborhoodGeoJSON.features.filter(f => cityNames.includes(f.properties.NAME))
+  };
+  if (matched.features.length === 0) return;
+
+  const layer = L.geoJSON(matched, {
+    style: {
+      color,
+      weight: 2,
+      opacity: 0.9,
+      fillColor: color,
+      fillOpacity: 0.1,
+      dashArray: '6, 6'
+    }
+  }).addTo(map);
+
+  state.boundaryLayers.push(layer);
+}
+
+function clearBoundaryLayers() {
+  state.boundaryLayers.forEach(l => map.removeLayer(l));
+  state.boundaryLayers = [];
+}
 
 // ── LOAD GEOJSON ───────────────────────────────────────────────────────────────
 fetch('./data/murals.geojson')
@@ -398,6 +449,16 @@ function applyFilters() {
     if (show) marker.addTo(map);
     else if (map.hasLayer(marker)) map.removeLayer(marker);
   });
+
+  // Show neighborhood boundaries when filtering by neighborhood
+  if (!state.tour) {
+    if (f.neighborhoods.size > 0) {
+      showNeighborhoodBoundaries([...f.neighborhoods], 'var(--accent)');
+    } else {
+      clearBoundaryLayers();
+    }
+  }
+
   updateFilterBadge();
 }
 
@@ -620,6 +681,12 @@ function startTour(loopKey) {
     }
   });
 
+  // Show neighborhood boundaries for this tour's pins
+  const tourNeighborhoods = [...new Set(
+    loop.mural_ids.map(id => state.markers.get(id)?.props.neighborhood).filter(Boolean)
+  )];
+  showNeighborhoodBoundaries(tourNeighborhoods, loop.color);
+
   // Draw walking route line
   const routeCoords = loop.mural_ids
     .map(id => state.markers.get(id))
@@ -692,6 +759,7 @@ function exitTour() {
   }
 
   if (state.tourRoute) { map.removeLayer(state.tourRoute); state.tourRoute = null; }
+  clearBoundaryLayers();
 
   state.tour = null;
   if (state.activeId !== null) { deactivateMarker(state.activeId); state.activeId = null; }
