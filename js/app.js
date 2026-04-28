@@ -17,9 +17,9 @@ const TOUR_LOOPS = {
   },
   whiteaker: {
     name: 'Whiteaker Loop',
-    description: '~0.8 miles · 5 murals · ~30 min',
+    description: '~0.9 miles · 6 murals · ~35 min',
     color: '#4A90D9',
-    mural_ids: [3, 4, 6, 10, 13]
+    mural_ids: [3, 4, 6, 10, 13, 22]
   },
   south: {
     name: 'South Eugene',
@@ -29,9 +29,9 @@ const TOUR_LOOPS = {
   },
   west: {
     name: 'West Eugene Loop',
-    description: '~1.2 miles · 3 murals · ~25 min',
+    description: '~1.0 miles · 2 murals · ~20 min',
     color: '#D4A843',
-    mural_ids: [22, 24, 16]
+    mural_ids: [24, 16]
   }
 };
 
