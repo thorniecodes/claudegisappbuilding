@@ -238,11 +238,8 @@ function handlePinClick(props, lat, lng, marker) {
   state.activeId = props.id;
   activateMarker(props.id);
   map.closePopup();
-  if (isMobile()) {
-    showPinPopup(props, lat, lng);
-  } else {
-    openDetail(props);
-  }
+  showPinPopup(props, lat, lng);
+  if (!isMobile()) openDetail(props);
 }
 
 function activateMarker(id) {
