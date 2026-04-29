@@ -131,7 +131,7 @@ map.on('click', () => {
 });
 
 // ── NEIGHBORHOOD BOUNDARIES ────────────────────────────────────────────────────
-fetch('./data/Eugene_Neighborhoods_-_HUB.geojson')
+fetch('./data/Eugene_Neighborhoods.geojson')
   .then(r => r.json())
   .then(data => { neighborhoodGeoJSON = data; })
   .catch(() => {}); // non-critical — boundaries simply won't show if unavailable
@@ -152,7 +152,7 @@ function showNeighborhoodBoundary(neighborhoodName, color) {
 
   const matched = {
     ...neighborhoodGeoJSON,
-    features: neighborhoodGeoJSON.features.filter(f => f.properties.NAME === cityName)
+    features: neighborhoodGeoJSON.features.filter(f => f.properties.name === cityName)
   };
   if (matched.features.length === 0) return;
 
