@@ -66,7 +66,6 @@ const state = {
     years: new Set(),
     originBucket: 'all',  // 'all' | 'local' | 'usa' | 'international'
     visitedStatus: 'all', // 'all' | 'unvisited' | 'visited'
-    hidePartial: true
   }
 };
 
@@ -428,7 +427,7 @@ function countActiveFilters() {
   n += state.filters.years.size;
   if (state.filters.originBucket !== 'all') n++;
   if (state.filters.visitedStatus !== 'all') n++;
-  if (!state.filters.hidePartial) n++;
+
   return n;
 }
 
@@ -457,7 +456,7 @@ function applyFilters() {
     if (f.originBucket !== 'all' && getOriginBucket(props.origin) !== f.originBucket) show = false;
     if (f.visitedStatus === 'visited' && !state.visited.has(id)) show = false;
     if (f.visitedStatus === 'unvisited' && state.visited.has(id)) show = false;
-    if (f.hidePartial && props.status === 'partial') show = false;
+
 
     if (show) marker.addTo(map);
     else if (map.hasLayer(marker)) map.removeLayer(marker);
@@ -479,7 +478,7 @@ function resetFilters() {
   state.filters.years.clear();
   state.filters.originBucket = 'all';
   state.filters.visitedStatus = 'all';
-  state.filters.hidePartial = true;
+
 }
 
 function buildFilterControls(container) {
@@ -508,12 +507,7 @@ function buildFilterControls(container) {
         ${VISITED_OPTIONS.filter(v => v.value !== 'all').map(v => `<button class="chip" data-fc="visited" data-val="${v.value}">${v.label}</button>`).join('')}
       </div>
     </div>
-    <div class="filter-section">
-      <h3>Mural Status</h3>
-      <div class="sf-row">
-        <button class="chip" data-fc="partial" data-val="true">Show partial/removed</button>
-      </div>
-    </div>`;
+    `;
 
   updateFilterChipStates(container);
 
@@ -529,8 +523,6 @@ function buildFilterControls(container) {
       state.filters.originBucket = state.filters.originBucket === val ? 'all' : val;
     } else if (type === 'visited') {
       state.filters.visitedStatus = state.filters.visitedStatus === val ? 'all' : val;
-    } else if (type === 'partial') {
-      state.filters.hidePartial = !state.filters.hidePartial;
     }
     applyFilters();
     updateFilterChipStates(container);
@@ -546,7 +538,6 @@ function updateFilterChipStates(container) {
     else if (type === 'neighborhood') active = state.filters.neighborhoods.has(val);
     else if (type === 'origin') active = state.filters.originBucket === val;
     else if (type === 'visited') active = state.filters.visitedStatus === val;
-    else if (type === 'partial') active = !state.filters.hidePartial;
     chip.classList.toggle('active', active);
   });
 }
@@ -596,7 +587,6 @@ function buildSidebarFilters() {
     <div class="sf-row">
       <button class="chip ${state.filters.visitedStatus === 'unvisited' ? 'active' : ''}" data-sf-visited="unvisited">Unvisited</button>
       <button class="chip ${state.filters.visitedStatus === 'visited' ? 'active' : ''}" data-sf-visited="visited">Visited</button>
-      <button class="chip ${!state.filters.hidePartial ? 'active' : ''}" data-sf-partial="true">Show partial</button>
     </div>`;
 
   document.getElementById('sf-clear-btn')?.addEventListener('click', () => {
@@ -621,8 +611,6 @@ function buildSidebarFilters() {
       } else if (chip.dataset.sfVisited) {
         const v = chip.dataset.sfVisited;
         state.filters.visitedStatus = state.filters.visitedStatus === v ? 'all' : v;
-      } else if (chip.dataset.sfPartial) {
-        state.filters.hidePartial = !state.filters.hidePartial;
       }
       applyFilters();
       buildSidebarFilters();
@@ -670,8 +658,7 @@ function startTour(loopKey) {
     neighborhoods: [...state.filters.neighborhoods],
     years: [...state.filters.years],
     originBucket: state.filters.originBucket,
-    visitedStatus: state.filters.visitedStatus,
-    hidePartial: state.filters.hidePartial
+    visitedStatus: state.filters.visitedStatus
   };
 
   state.tour = { loopKey, stops: loop.mural_ids, currentIndex: 0 };
@@ -790,7 +777,6 @@ function exitTour() {
     state.filters.years = new Set(state.savedFilters.years);
     state.filters.originBucket = state.savedFilters.originBucket;
     state.filters.visitedStatus = state.savedFilters.visitedStatus;
-    state.filters.hidePartial = state.savedFilters.hidePartial;
     state.savedFilters = null;
     applyFilters();
     buildSidebarFilters();
