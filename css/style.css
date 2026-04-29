@@ -190,6 +190,14 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ── CUSTOM PIN ── */
 .mural-pin { transition: transform 0.15s ease; cursor: pointer; display: block; }
 .mural-pin:hover, .mural-pin:focus { transform: scale(1.3); }

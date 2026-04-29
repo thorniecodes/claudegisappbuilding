@@ -305,8 +305,8 @@ function buildDetailHTML(props) {
 
   const isTourStop = state.tour && state.tour.stops.includes(props.id);
   const directionsBtn = isTourStop
-    ? `<a href="${getDirectionsURL(props.latLng[0], props.latLng[1])}" target="_blank" rel="noopener" class="btn-action" aria-label="Get walking directions to this stop">Get Directions to This Stop</a>`
-    : `<a href="${getDirectionsURL(props.latLng[0], props.latLng[1])}" target="_blank" rel="noopener" class="btn-action" aria-label="Get walking directions">Get Directions</a>`;
+    ? `<a href="${getDirectionsURL(props.latLng[0], props.latLng[1])}" target="_blank" rel="noopener" class="btn-action" aria-label="Get walking directions to this stop (opens in new tab)">Get Directions to This Stop</a>`
+    : `<a href="${getDirectionsURL(props.latLng[0], props.latLng[1])}" target="_blank" rel="noopener" class="btn-action" aria-label="Get walking directions (opens in new tab)">Get Directions</a>`;
 
   return `<img src="${escapeHtml(photoSrc)}" alt="${escapeHtml(props.title)}" class="detail-img" loading="lazy" onerror="this.src='./assets/images/placeholder.svg'">
     <div class="detail-body">
@@ -318,7 +318,7 @@ function buildDetailHTML(props) {
       ${visitedBtn}
       <div class="detail-actions">
         ${directionsBtn}
-        <a href="${escapeHtml(props.website)}" target="_blank" rel="noopener" class="btn-action btn-action-secondary" aria-label="Learn more about this mural">Learn More</a>
+        <a href="${escapeHtml(props.website)}" target="_blank" rel="noopener" class="btn-action btn-action-secondary" aria-label="Learn more about this mural (opens in new tab)">Learn More</a>
       </div>
     </div>`;
 }
@@ -551,6 +551,7 @@ function openFilterPanel() {
   panel.setAttribute('aria-hidden', 'false');
   overlay.classList.remove('hidden');
   overlay.setAttribute('aria-hidden', 'false');
+  setTimeout(() => panel.querySelector('button, [href], [tabindex]')?.focus(), 50);
 }
 
 function closeFilterPanel() {
@@ -634,10 +635,12 @@ function buildTourCards() {
 }
 
 function openTourSheet() {
-  document.getElementById('tour-sheet').classList.add('open');
-  document.getElementById('tour-sheet').setAttribute('aria-hidden', 'false');
+  const sheet = document.getElementById('tour-sheet');
+  sheet.classList.add('open');
+  sheet.setAttribute('aria-hidden', 'false');
   document.getElementById('tour-overlay').classList.remove('hidden');
   document.getElementById('tour-overlay').setAttribute('aria-hidden', 'false');
+  setTimeout(() => sheet.querySelector('button, [href], [tabindex]')?.focus(), 50);
 }
 
 function closeTourSheet() {
