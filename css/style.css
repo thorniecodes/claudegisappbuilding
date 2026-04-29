@@ -341,7 +341,7 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
   padding: 4px 10px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  font-size: 16px;
+  font-size: 14px;
   font-family: 'Inter', sans-serif;
   color: var(--text-secondary);
   cursor: pointer;
@@ -393,7 +393,7 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
 
 .detail-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
+  font-size: 32px;
   letter-spacing: 1px;
   color: var(--text-primary);
   line-height: 1.1;
@@ -636,7 +636,7 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
 
 .tour-card-name {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
+  font-size: 22px;
   letter-spacing: 0.5px;
   color: var(--text-primary);
   line-height: 1.1;
