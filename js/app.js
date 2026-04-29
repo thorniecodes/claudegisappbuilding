@@ -78,6 +78,25 @@ function escapeHtml(s) {
 
 function isMobile() { return window.innerWidth < 768; }
 
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function showToast(message) {
+  let toast = document.getElementById('a11y-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'a11y-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add('visible');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('visible'), 4000);
+}
+
 function getOriginBucket(origin) {
   if (/eugene|,\s*or\b/i.test(origin)) return 'local';
   if (/\busa\b/i.test(origin)) return 'usa';
@@ -197,7 +216,9 @@ function createPinIcon(title, isVisited = false, tourNumber = null, color = '#E8
   const fill = isVisited ? '#555550' : color;
   const inner = tourNumber !== null
     ? `<text x="12" y="16" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="#F5F0EB">${tourNumber}</text>`
-    : `<circle cx="12" cy="12" r="3.5" fill="#F5F0EB"/>`;
+    : isVisited
+      ? `<path d="M8,12.5 L10.5,15 L16,9.5" stroke="#F5F0EB" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`
+      : `<circle cx="12" cy="12" r="3.5" fill="#F5F0EB"/>`;
   const visitedLabel = isVisited ? ' — visited' : '';
   return L.divIcon({
     className: '',
@@ -225,6 +246,16 @@ function initMarkers(features) {
     });
     marker.on('click', () => handlePinClick(props, lat, lng, marker));
     marker.addTo(map);
+    const markerEl = marker.getElement();
+    const pinEl = markerEl?.querySelector('.mural-pin');
+    if (pinEl) {
+      pinEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handlePinClick(props, lat, lng, marker);
+        }
+      });
+    }
     state.markers.set(props.id, { marker, props, lat, lng });
     latlngs.push([lat, lng]);
   });
@@ -480,28 +511,28 @@ function resetFilters() {
 
 function buildFilterControls(container) {
   container.innerHTML = `
-    <div class="filter-section">
-      <h3>Year</h3>
+    <div class="filter-section" role="group" aria-labelledby="fp-label-year">
+      <h3 id="fp-label-year">Year</h3>
       <div class="sf-row">
-        ${YEARS.map(y => `<button class="chip" data-fc="year" data-val="${y}">${y}</button>`).join('')}
+        ${YEARS.map(y => `<button class="chip" data-fc="year" data-val="${y}" aria-pressed="false">${y}</button>`).join('')}
       </div>
     </div>
-    <div class="filter-section">
-      <h3>Neighborhood</h3>
+    <div class="filter-section" role="group" aria-labelledby="fp-label-neighborhood">
+      <h3 id="fp-label-neighborhood">Neighborhood</h3>
       <div class="sf-row">
-        ${NEIGHBORHOODS.map(n => `<button class="chip" data-fc="neighborhood" data-val="${n}">${n}</button>`).join('')}
+        ${NEIGHBORHOODS.map(n => `<button class="chip" data-fc="neighborhood" data-val="${n}" aria-pressed="false">${n}</button>`).join('')}
       </div>
     </div>
-    <div class="filter-section">
-      <h3>Artist Origin</h3>
+    <div class="filter-section" role="group" aria-labelledby="fp-label-origin">
+      <h3 id="fp-label-origin">Artist Origin</h3>
       <div class="sf-row">
-        ${ORIGIN_BUCKETS.filter(o => o.value !== 'all').map(o => `<button class="chip" data-fc="origin" data-val="${o.value}">${o.label}</button>`).join('')}
+        ${ORIGIN_BUCKETS.filter(o => o.value !== 'all').map(o => `<button class="chip" data-fc="origin" data-val="${o.value}" aria-pressed="false">${o.label}</button>`).join('')}
       </div>
     </div>
-    <div class="filter-section">
-      <h3>Visited</h3>
+    <div class="filter-section" role="group" aria-labelledby="fp-label-visited">
+      <h3 id="fp-label-visited">Visited</h3>
       <div class="sf-row">
-        ${VISITED_OPTIONS.filter(v => v.value !== 'all').map(v => `<button class="chip" data-fc="visited" data-val="${v.value}">${v.label}</button>`).join('')}
+        ${VISITED_OPTIONS.filter(v => v.value !== 'all').map(v => `<button class="chip" data-fc="visited" data-val="${v.value}" aria-pressed="false">${v.label}</button>`).join('')}
       </div>
     </div>
     `;
@@ -536,6 +567,7 @@ function updateFilterChipStates(container) {
     else if (type === 'origin') active = state.filters.originBucket === val;
     else if (type === 'visited') active = state.filters.visitedStatus === val;
     chip.classList.toggle('active', active);
+    chip.setAttribute('aria-pressed', String(active));
   });
 }
 
@@ -547,6 +579,7 @@ function buildFilterPanel() {
 function openFilterPanel() {
   const panel = document.getElementById('filter-panel');
   const overlay = document.getElementById('filter-overlay');
+  panel._returnFocus = document.activeElement;
   panel.classList.add('open');
   panel.setAttribute('aria-hidden', 'false');
   overlay.classList.remove('hidden');
@@ -561,6 +594,7 @@ function closeFilterPanel() {
   panel.setAttribute('aria-hidden', 'true');
   overlay.classList.add('hidden');
   overlay.setAttribute('aria-hidden', 'true');
+  panel._returnFocus?.focus();
 }
 
 // Desktop sidebar filter chips
@@ -573,18 +607,18 @@ function buildSidebarFilters() {
       <span class="sf-heading">Filters${active > 0 ? ` (${active})` : ''}</span>
       ${active > 0 ? '<button class="sf-clear" id="sf-clear-btn">Clear</button>' : ''}
     </div>
-    <div class="sf-row">
-      ${NEIGHBORHOODS.map(n => `<button class="chip ${state.filters.neighborhoods.has(n) ? 'active' : ''}" data-sf-neighborhood="${n}">${n}</button>`).join('')}
+    <div class="sf-row" role="group" aria-label="Neighborhood">
+      ${NEIGHBORHOODS.map(n => `<button class="chip ${state.filters.neighborhoods.has(n) ? 'active' : ''}" data-sf-neighborhood="${n}" aria-pressed="${state.filters.neighborhoods.has(n)}">${n}</button>`).join('')}
     </div>
-    <div class="sf-row">
-      ${YEARS.map(y => `<button class="chip ${state.filters.years.has(y) ? 'active' : ''}" data-sf-year="${y}">${y}</button>`).join('')}
+    <div class="sf-row" role="group" aria-label="Year">
+      ${YEARS.map(y => `<button class="chip ${state.filters.years.has(y) ? 'active' : ''}" data-sf-year="${y}" aria-pressed="${state.filters.years.has(y)}">${y}</button>`).join('')}
     </div>
-    <div class="sf-row">
-      ${ORIGIN_BUCKETS.filter(o => o.value !== 'all').map(o => `<button class="chip ${state.filters.originBucket === o.value ? 'active' : ''}" data-sf-origin="${o.value}">${o.label}</button>`).join('')}
+    <div class="sf-row" role="group" aria-label="Artist Origin">
+      ${ORIGIN_BUCKETS.filter(o => o.value !== 'all').map(o => `<button class="chip ${state.filters.originBucket === o.value ? 'active' : ''}" data-sf-origin="${o.value}" aria-pressed="${state.filters.originBucket === o.value}">${o.label}</button>`).join('')}
     </div>
-    <div class="sf-row">
-      <button class="chip ${state.filters.visitedStatus === 'unvisited' ? 'active' : ''}" data-sf-visited="unvisited">Unvisited</button>
-      <button class="chip ${state.filters.visitedStatus === 'visited' ? 'active' : ''}" data-sf-visited="visited">Visited</button>
+    <div class="sf-row" role="group" aria-label="Visited">
+      <button class="chip ${state.filters.visitedStatus === 'unvisited' ? 'active' : ''}" data-sf-visited="unvisited" aria-pressed="${state.filters.visitedStatus === 'unvisited'}">Unvisited</button>
+      <button class="chip ${state.filters.visitedStatus === 'visited' ? 'active' : ''}" data-sf-visited="visited" aria-pressed="${state.filters.visitedStatus === 'visited'}">Visited</button>
     </div>`;
 
   document.getElementById('sf-clear-btn')?.addEventListener('click', () => {
@@ -621,7 +655,7 @@ function buildTourCards() {
   const container = document.getElementById('tour-cards');
   container.innerHTML = Object.entries(TOUR_LOOPS).map(([key, loop]) => `
     <div class="tour-card">
-      <div class="tour-card-dot" style="background:${loop.color}"></div>
+      <div class="tour-card-dot" style="background:${loop.color}" aria-hidden="true"></div>
       <div class="tour-card-info">
         <div class="tour-card-name">${loop.name}</div>
         <div class="tour-card-desc">${loop.description}</div>
@@ -636,6 +670,7 @@ function buildTourCards() {
 
 function openTourSheet() {
   const sheet = document.getElementById('tour-sheet');
+  sheet._returnFocus = document.activeElement;
   sheet.classList.add('open');
   sheet.setAttribute('aria-hidden', 'false');
   document.getElementById('tour-overlay').classList.remove('hidden');
@@ -644,10 +679,12 @@ function openTourSheet() {
 }
 
 function closeTourSheet() {
-  document.getElementById('tour-sheet').classList.remove('open');
-  document.getElementById('tour-sheet').setAttribute('aria-hidden', 'true');
+  const sheet = document.getElementById('tour-sheet');
+  sheet.classList.remove('open');
+  sheet.setAttribute('aria-hidden', 'true');
   document.getElementById('tour-overlay').classList.add('hidden');
   document.getElementById('tour-overlay').setAttribute('aria-hidden', 'true');
+  sheet._returnFocus?.focus();
 }
 
 function startTour(loopKey) {
@@ -712,7 +749,7 @@ function goToTourStop(index) {
   document.getElementById('tour-next').disabled = index === stops.length - 1;
 
   // Fly to marker
-  map.flyTo([lat, lng], 15, { animate: true, duration: 0.8 });
+  map.flyTo([lat, lng], 15, prefersReducedMotion() ? { animate: false } : { animate: true, duration: 0.8 });
 
   // Activate marker
   if (state.activeId !== null && state.activeId !== id) deactivateMarker(state.activeId);
@@ -801,12 +838,15 @@ function exitTour() {
 // ── NEAR ME ────────────────────────────────────────────────────────────────────
 function goToNearMe() {
   if (!navigator.geolocation) {
-    alert('Geolocation is not supported by your browser.');
+    showToast('Geolocation is not supported by your browser.');
     return;
   }
   navigator.geolocation.getCurrentPosition(
-    pos => map.flyTo([pos.coords.latitude, pos.coords.longitude], 15),
-    () => alert('Unable to retrieve your location.')
+    pos => map.flyTo(
+      [pos.coords.latitude, pos.coords.longitude], 15,
+      prefersReducedMotion() ? { animate: false } : { animate: true, duration: 0.8 }
+    ),
+    () => showToast('Unable to retrieve your location.')
   );
 }
 
@@ -845,3 +885,11 @@ document.getElementById('tour-next')?.addEventListener('click', () => {
 });
 
 document.getElementById('tour-exit')?.addEventListener('click', exitTour);
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const filterPanel = document.getElementById('filter-panel');
+  const tourSheet = document.getElementById('tour-sheet');
+  if (filterPanel?.getAttribute('aria-hidden') === 'false') closeFilterPanel();
+  else if (tourSheet?.getAttribute('aria-hidden') === 'false') closeTourSheet();
+});
