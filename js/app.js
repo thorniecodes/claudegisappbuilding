@@ -263,7 +263,7 @@ function deactivateMarker(id) {
 // ── POPUP ──────────────────────────────────────────────────────────────────────
 function showPinPopup(props, lat, lng) {
   const photoSrc = props.photo || './assets/images/placeholder.svg';
-  const popup = L.popup({ closeButton: false, offset: [0, -4], autoPan: true })
+  const popup = L.popup({ closeButton: false, offset: [0, -4], autoPan: true, maxWidth: 200 })
     .setLatLng([lat, lng])
     .setContent(
       `<div class="pin-popup" role="button" tabindex="0" aria-label="Open details for ${escapeHtml(props.title)}">
