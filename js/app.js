@@ -215,6 +215,7 @@ function createPinIcon(title, isVisited = false, tourNumber = null, color = '#E8
 
 // ── MARKERS ────────────────────────────────────────────────────────────────────
 function initMarkers(features) {
+  const latlngs = [];
   features.forEach(f => {
     const props = f.properties;
     const [lat, lng] = props.latLng;
@@ -225,7 +226,9 @@ function initMarkers(features) {
     marker.on('click', () => handlePinClick(props, lat, lng, marker));
     marker.addTo(map);
     state.markers.set(props.id, { marker, props, lat, lng });
+    latlngs.push([lat, lng]);
   });
+  if (latlngs.length) map.fitBounds(L.latLngBounds(latlngs), { padding: [40, 40] });
 }
 
 function handlePinClick(props, lat, lng, marker) {

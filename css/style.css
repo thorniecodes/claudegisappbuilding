@@ -10,7 +10,7 @@
   --pin-unvisited:  #E8401C;
   --pin-visited:    #555550;
   --header-h:       52px;
-  --sidebar-w:      320px;
+  --sidebar-w:      420px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
