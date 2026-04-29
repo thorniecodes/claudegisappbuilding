@@ -11,9 +11,9 @@ const TOTAL_MURALS = 24;
 const TOUR_LOOPS = {
   downtown: {
     name: 'Downtown Loop',
-    description: '~1.5 miles · 8 murals · ~45 min',
+    description: '~2.5 miles · 15 murals · ~1.5 hrs',
     color: '#E8401C',
-    mural_ids: [2, 5, 7, 8, 9, 11, 19, 20]
+    mural_ids: [15, 16, 19, 23, 11, 7, 12, 1, 5, 2, 8, 20, 17, 9, 18]
   },
   whiteaker: {
     name: 'Whiteaker Loop',
@@ -29,9 +29,9 @@ const TOUR_LOOPS = {
   },
   west: {
     name: 'West Eugene Loop',
-    description: '~1.0 miles · 2 murals · ~20 min',
+    description: '1 mural · ~10 min',
     color: '#D4A843',
-    mural_ids: [24, 16]
+    mural_ids: [24]
   }
 };
 
