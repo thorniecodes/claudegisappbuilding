@@ -1,7 +1,9 @@
 # Building a GIS App with Claude Code
-Learning how to build a GIS app at the GIS in Action Conference. Vibe Coding with Claude Workshop 2026-04-28
+Learning how to build a GIS app at the GIS in Action Conference. Vibe Coding with Claude Workshop 2026-04-28. Any images or text has been used for educational purposes only for learning how to develop GIS apps using generative artificial intelligence.
 
 # Eugene Mural Tour
+[https://thorniecodes.github.io/claudegisappbuilding/](https://thorniecodes.github.io/claudegisappbuilding/)
+
 An interactive, mobile-friendly web map for exploring the public murals of Eugene, Oregon. Built as a self-guided walking tour, this app lets residents and visitors discover the city's vibrant outdoor art scene — from neighborhood walls in the Whiteaker to landmark pieces in downtown.
 Mural data is sourced from the 20x21EUG Mural Project, a City of Eugene Cultural Services initiative that commissioned over 20 world-class murals by local, national, and international artists in preparation for the 2022 IAAF World Athletics Championships. Each pin on the map includes the artist's name, country of origin, year painted, address, and a description of the work and its context.
 
