@@ -339,10 +339,20 @@ function buildDetailHTML(props) {
     ? `<a href="${getDirectionsURL(props.latLng[0], props.latLng[1])}" target="_blank" rel="noopener" class="btn-action" aria-label="Get walking directions to this stop (opens in new tab)">Get Directions to This Stop</a>`
     : `<a href="${getDirectionsURL(props.latLng[0], props.latLng[1])}" target="_blank" rel="noopener" class="btn-action" aria-label="Get walking directions (opens in new tab)">Get Directions</a>`;
 
+  const originBucket = getOriginBucket(props.origin);
+  const originLabel = { local: 'Local', usa: 'USA', international: 'International' }[originBucket] || props.origin;
+  const loopColor = getMuralColor(props.id);
+
   return `<img src="${escapeHtml(photoSrc)}" alt="${escapeHtml(props.title)}" class="detail-img" loading="lazy" onerror="this.src='./assets/images/placeholder.svg'">
     <div class="detail-body">
       <h2 class="detail-title">${escapeHtml(props.title)}</h2>
-      <p class="detail-meta">${escapeHtml(props.artist)} · ${props.year} · ${escapeHtml(props.origin)}</p>
+      <p class="detail-meta">${escapeHtml(props.artist)} · ${escapeHtml(props.origin)}</p>
+      <div class="detail-tags" aria-label="Mural attributes">
+        <span class="detail-tag detail-tag-neighborhood" style="border-color:${loopColor};color:${loopColor}">${escapeHtml(props.neighborhood)}</span>
+        <span class="detail-tag">${props.year}</span>
+        <span class="detail-tag">${escapeHtml(originLabel)}</span>
+        <span class="detail-tag detail-tag-visited${isVisited ? ' active' : ''}" aria-label="${isVisited ? 'Visited' : 'Not yet visited'}">${isVisited ? '&#10003;&nbsp;Visited' : 'Not&nbsp;Visited'}</span>
+      </div>
       <p class="detail-address">${escapeHtml(props.address)}</p>
       <hr>
       <p class="detail-description">${escapeHtml(props.description)}</p>
@@ -386,6 +396,13 @@ function toggleVisited(id) {
     btn.setAttribute('aria-label', isNowVisited ? 'Mark as unvisited' : 'Mark as visited');
     btn.innerHTML = isNowVisited ? '&#10003; Visited' : 'Mark as Visited';
     btn.classList.toggle('active', isNowVisited);
+  }
+
+  const visitedTag = container?.querySelector('.detail-tag-visited');
+  if (visitedTag) {
+    visitedTag.classList.toggle('active', isNowVisited);
+    visitedTag.setAttribute('aria-label', isNowVisited ? 'Visited' : 'Not yet visited');
+    visitedTag.innerHTML = isNowVisited ? '&#10003;&nbsp;Visited' : 'Not&nbsp;Visited';
   }
 
   updateVisitedCounter();

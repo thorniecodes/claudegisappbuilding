@@ -449,6 +449,35 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
   margin-bottom: 18px;
 }
 
+/* ── DETAIL TAGS ── */
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.detail-tag {
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.detail-tag-visited {
+  border-color: var(--text-secondary);
+}
+
+.detail-tag-visited.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(232,64,28,0.08);
+}
+
 /* ── VISITED BUTTON ── */
 .btn-visited {
   display: block;
