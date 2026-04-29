@@ -47,7 +47,7 @@ const NEIGHBORHOOD_NAME_MAP = {
   'Downtown':    'Downtown Neighborhood Association',
   'Whiteaker':   'Whiteaker Community Council',
   'West Eugene': 'West Eugene Community Organization',
-  'South Eugene': null  // no single matching boundary — skipped
+  'South Eugene': ['Friendly Area Neighbors', 'West University Neighbors']
 };
 
 // ── STATE ──────────────────────────────────────────────────────────────────────
@@ -147,12 +147,13 @@ function getNeighborhoodColor(neighborhood) {
 
 function showNeighborhoodBoundary(neighborhoodName, color) {
   if (!neighborhoodGeoJSON) return;
-  const cityName = NEIGHBORHOOD_NAME_MAP[neighborhoodName];
-  if (!cityName) return;
+  const cityNames = NEIGHBORHOOD_NAME_MAP[neighborhoodName];
+  if (!cityNames) return;
+  const names = Array.isArray(cityNames) ? cityNames : [cityNames];
 
   const matched = {
     ...neighborhoodGeoJSON,
-    features: neighborhoodGeoJSON.features.filter(f => f.properties.name === cityName)
+    features: neighborhoodGeoJSON.features.filter(f => names.includes(f.properties.name))
   };
   if (matched.features.length === 0) return;
 
