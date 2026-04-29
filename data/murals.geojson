@@ -16,7 +16,7 @@
         "address": "62 W Broadway (Cowfish alley)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
-        "photo": "./assets/images/Acidum.jpeg",
+        "photo": "./assets/images/acidum.jpeg",
         "website": "https://www.20x21eug.com/murals/acidum-project/",
         "description": "Mural by Brazilian artist collective Acidum Project, founders Robézio Marquez and Tereza De Quinta. The first mural commissioned for the 20x21EUG project.",
         "status": "active"
@@ -35,6 +35,7 @@
         "address": "1010 Willamette St, west wall (McDonald Theatre)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/stanton.png",
         "website": "https://www.20x21eug.com/murals/beau-stanton/",
         "description": "A 3,500 sq ft mural on the west-facing back wall of the historic McDonald Theatre. Stanton draws on religious and nautical imagery. A California native who studied at Laguna College of Art and Design.",
         "status": "active"
@@ -53,6 +54,7 @@
         "address": "254 Lincoln St (Wildcraft Cider Works)",
         "neighborhood": "Whiteaker",
         "project": "20x21EUG",
+        "photo": "./assets/images/lopez.png",
         "website": "https://www.20x21eug.com/murals/steven-lopez/",
         "description": "A 12x50 ft mural featuring bees and honeycomb, delivering a subtle environmental message about cross-pollination. Lopez is a UO art graduate who studied under sculptor Dora Natella.",
         "status": "active"
@@ -71,7 +73,7 @@
         "address": "411 W 4th Ave (Web Picture Frames / Vistra Framing)",
         "neighborhood": "Whiteaker",
         "project": "20x21EUG",
-        "photo": "./assets/images/Tunan.jpeg",
+        "photo": "./assets/images/tunan.jpeg",
         "website": "https://www.20x21eug.com/murals/hua-tunan/",
         "description": "Born in 1991 in Foshan, China, Tunan's style combines traditional Chinese ink wash painting with Western graffiti. The vivid red wall and black dragon represent Chinese luck and folklore, while black paint drips symbolize Eugene's rain.",
         "status": "active"
@@ -90,6 +92,7 @@
         "address": "1010 Willamette St, south wall (McDonald Theatre)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/fasoli.png",
         "website": "https://www.20x21eug.com/murals/jaz/",
         "description": "Inspired by dialogues that take place during art festivals, this mural features two figures with bird heads. JAZ used a grid paint-by-numbers technique and was assisted by local artist Bayne Gardner.",
         "status": "active"
@@ -108,6 +111,7 @@
         "address": "544 Blair Blvd, north wall (Arcimoto)",
         "neighborhood": "Whiteaker",
         "project": "20x21EUG",
+        "photo": "./assets/images/fasoli.png",
         "website": "https://www.20x21eug.com/murals/jaz/",
         "description": "A bonus mural by JAZ featuring two half-human, half-creature beings connected by a chain, reminiscent of his earlier graffiti works. Gifted to Eugene after completing his first mural ahead of schedule.",
         "status": "active"
@@ -126,6 +130,7 @@
         "address": "198 W Broadway, west wall (Shaw-Med / Oregon Contemporary Theatre)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/miel.png",
         "website": "https://www.20x21eug.com/murals/telmo-miel/",
         "description": "Dutch duo Telmo Pieper and Miel Krutzmann met at the Willem de Kooning Academy in Rotterdam and have created murals in 23 countries. Their work balances surrealism and hyper-realism with vivid color and immense detail.",
         "status": "active"
@@ -144,6 +149,7 @@
         "address": "125 W 11th Ave, north wall (The Kiva)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/hyuro.png",
         "website": "https://www.20x21eug.com/murals/hyuro/",
         "description": "Born in Argentina and residing in Valencia, Spain, Hyuro depicts faceless women helping to reconstruct a plant — a commentary on female identity, nature, and politics. Hyuro passed away in 2020.",
         "status": "active"
@@ -162,6 +168,7 @@
         "address": "1334 Oak Alley, east wall (Falling Sky Brewing House & Gastropub)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/hush.png",
         "website": "https://www.20x21eug.com/murals/hush/",
         "description": "London-based Hush blends Japanese anime and geisha imagery with abstract pop and graphic elements. His style draws upon traditional artistic techniques reimagined through the lens of street art.",
         "status": "active"
@@ -180,6 +187,7 @@
         "address": "348 W 3rd Ave, sawdust silo (north and east walls)",
         "neighborhood": "Whiteaker",
         "project": "20x21EUG",
+        "photo": "./assets/images/rose.png",
         "website": "https://www.20x21eug.com/murals/ila-rose/",
         "description": "Eugene-born artist Ila Rose is inspired by the interconnection between humans and the natural world. This was her first contribution to the 20x21EUG project, painted on the two walls of a sawdust silo.",
         "status": "active"
@@ -198,6 +206,7 @@
         "address": "100 E Broadway, south wall (IDX Broker)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/lerat.png",
         "website": "https://www.20x21eug.com/murals/blek-le-rat/",
         "description": "Known as the Godfather of Stencil Art and a key influence on Banksy, Blek le Rat created a large black-and-white stencil of his son playing violin with rats streaming toward him. Best viewed from the 10th & Oak parking garage. He also left ~10 smaller stencils hidden around downtown Eugene.",
         "status": "active"
@@ -216,6 +225,7 @@
         "address": "Various locations, downtown (7th–11th Ave between Olive & Willamette)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/witz.png",
         "website": "https://www.20x21eug.com/murals/dan-witz/",
         "description": "Brooklyn-based Witz is known for trompe l'oeil street installations — small, haunting works that trick the eye. He scattered numerous small-scale pieces across downtown Eugene including works at Actors Cabaret, on the Davis Restaurant pillars, and other locations. Some have since been removed.",
         "status": "partial"
@@ -234,6 +244,7 @@
         "address": "1061 W 2nd Ave, south wall (Grizzlies Brand)",
         "neighborhood": "Whiteaker",
         "project": "20x21EUG",
+        "photo": "./assets/images/diaz.png",
         "website": "https://www.20x21eug.com/murals/alexis-diaz/",
         "description": "Diaz is known for chimerical, dreamlike animals in metamorphosis, rendered with tiny black brushstrokes on white — mimicking highly-detailed pen-and-ink drawings. His signature style creates creatures that appear almost photorealistic.",
         "status": "active"
@@ -252,6 +263,7 @@
         "address": "2451 Willamette St, south wall",
         "neighborhood": "South Eugene",
         "project": "20x21EUG",
+        "photo": "./assets/images/hassani.png",
         "website": "https://www.20x21eug.com/murals/shamsia-hassani/",
         "description": "Afghanistan's first female graffiti artist and a lecturer at Kabul University. Her towering mural depicts a mouthless woman holding a keytar — the instrument serves as her voice, symbolizing empowerment through the arts.",
         "status": "active"
@@ -270,6 +282,7 @@
         "address": "Parcade Parking Garage, 7th Ave & Willamette St",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/aiko.png",
         "website": "https://www.20x21eug.com/murals/aiko/",
         "description": "Born and raised in Tokyo, AIKO moved to New York in the mid-1990s. She is acclaimed in the contemporary art world for her large-scale stencil works blending Japanese cultural heritage with street art.",
         "status": "active"
@@ -288,6 +301,7 @@
         "address": "755 Charnelton St, north wall (NW Martial Arts)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/h11235.png",
         "website": "https://www.20x21eug.com/murals/h11235/",
         "description": "Delayed by visa trouble and missing Eugene Walls 2018, H11235 arrived two weeks later and quickly completed a photorealistic half-portrait of an elderly Nepali man. The deconstruction of the image speaks to order and chaos. He also has work at Lane Community College's downtown campus.",
         "status": "active"
@@ -306,6 +320,7 @@
         "address": "Corner of 13th & Willamette St (Falling Sky Brewing, Willamette side)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/gardner.png",
         "website": "https://www.20x21eug.com/murals/bayne-gardner/",
         "description": "Self-taught Eugene artist Bayne Gardner features an ibis and salmon navigating the current. The work contains a hidden tribute to 2017 Eugene Walls artist Dan Witz. Gardner has painted over 40 murals in the Eugene area.",
         "status": "active"
@@ -324,6 +339,7 @@
         "address": "1374 Willamette St",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/gardner.png",
         "website": "https://www.20x21eug.com/murals/bayne-gardner/",
         "description": "A bonus mural by Bayne Gardner painted during the 2018 Eugene Walls event, featuring a playful pink donut motif.",
         "status": "active"
@@ -342,6 +358,7 @@
         "address": "749 Willamette St (alley between Willamette & W Park St)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/small.png",
         "website": "https://www.20x21eug.com/murals/matt-small/",
         "description": "A portrait of Jesse Owens, the legendary African-American track and field star who won four gold medals at the 1936 Olympics. Small built the piece using found objects including wood reclaimed from the historic Hayward Field renovations at the University of Oregon.",
         "status": "active"
@@ -360,6 +377,7 @@
         "address": "1166 Oak St, south wall (First Christian Church)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/wkinteract.png",
         "website": "https://www.20x21eug.com/murals/wk-interact/",
         "description": "French-American artist WK Interact has lived and worked in New York since the early 1990s. His monochromatic portrait of MLK mid-speech dominates the south wall of the First Christian Church.",
         "status": "active"
@@ -378,6 +396,7 @@
         "address": "1401 Willamette St (Eugene Area Chamber of Commerce)",
         "neighborhood": "South Eugene",
         "project": "20x21EUG",
+        "photo": "./assets/images/magee.png",
         "website": "https://www.20x21eug.com/murals/fintan-magee/",
         "description": "Australian street artist Fintan Magee is known for large-scale surreal and figurative murals exploring themes of waste, consumption, loss and transition. He trained as a fine arts graduate in Sydney before relocating from Brisbane.",
         "status": "active"
@@ -396,6 +415,7 @@
         "address": "1274 W 7th St (Well Balanced)",
         "neighborhood": "Whiteaker",
         "project": "20x21EUG",
+        "photo": "./assets/images/sit.png",
         "website": "https://www.20x21eug.com/murals/sit/",
         "description": "Named after the artist's daughter, this monochromatic mural is meant to be read right to left: a broken city with bridges and poles on water transitions to a child fishing — a symbol of hope in a world affected by climate change. SIT also painted a bonus mural at 856 Willamette St.",
         "status": "active"
@@ -414,6 +434,7 @@
         "address": "270 W 8th Ave (FOOD for Lane County's Dining Room)",
         "neighborhood": "Downtown",
         "project": "20x21EUG",
+        "photo": "./assets/images/johnson.png",
         "website": "https://www.20x21eug.com/murals/kari-johnson/",
         "description": "Eugene artist Kari Johnson has been painting murals for 25 years. Painted in soft glowing tones, this mural features an oak tree as a symbol of the Willamette Valley's history as home for native people, with acorns and camas root — both traditional native foods.",
         "status": "active"
@@ -432,6 +453,7 @@
         "address": "2836 W 11th Ave (Coffee Plant Roaster)",
         "neighborhood": "West Eugene",
         "project": "20x21EUG",
+        "photo": "./assets/images/renault.png",
         "website": "https://www.20x21eug.com/murals/adele-renault/",
         "description": "Belgian artist Adele Renault graduated from the Académie Royale des Beaux-Arts in Brussels in 2010. She focuses on realistic depictions of ordinary city residents — people and pigeons alike — rendered with equal meticulous care.",
         "status": "active"
