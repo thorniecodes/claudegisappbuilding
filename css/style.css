@@ -195,7 +195,7 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
 .leaflet-container a.leaflet-popup-close-button { display: none; }
 
 .pin-popup { cursor: pointer; }
-.popup-img { width: 180px; height: 120px; object-fit: cover; display: block; }
+.popup-img { width: 180px; height: 120px; object-fit: contain; display: block; background: #000; }
 .popup-info { padding: 8px 10px; }
 .popup-title {
   font-family: 'Bebas Neue', sans-serif;
@@ -380,8 +380,9 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
 .detail-img {
   width: 100%;
   aspect-ratio: 16 / 9;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
+  background: #000;
 }
 
 .detail-body { padding: 16px; }
