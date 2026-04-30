@@ -281,6 +281,7 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
 }
 
 #drawer.open { transform: translateY(0); }
+#drawer.peek { transform: translateY(calc(100% - 120px)); }
 
 .drawer-handle {
   width: 40px; height: 4px;
@@ -288,6 +289,112 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
   background: var(--border);
   margin: 10px auto 4px;
   flex-shrink: 0;
+}
+
+/* ── TOUR PEEK CARD ── */
+.tour-peek-card {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  min-height: 96px;
+}
+
+#drawer.peek .tour-peek-card { display: flex; }
+
+.tour-peek-img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background: #000;
+}
+
+.tour-peek-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tour-peek-stop {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 3px;
+}
+
+.tour-peek-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--text-primary);
+  line-height: 1.1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tour-peek-hint {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.tour-peek-chevron {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* FABs float above the peek card during a tour */
+@media (max-width: 767px) {
+  body.tour-active #fab-area { bottom: calc(120px + 16px); }
+}
+
+/* ── TRACK ME BUTTON ── */
+#tour-track-me {
+  min-width: 44px;
+  padding: 0 10px;
+}
+
+#tour-track-me.active {
+  border-color: #5B9CF6;
+  color: #5B9CF6;
+}
+
+/* ── GPS DOT ── */
+.gps-dot {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.gps-dot-inner {
+  width: 12px;
+  height: 12px;
+  background: #5B9CF6;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 4px; left: 4px;
+  z-index: 1;
+}
+
+.gps-dot-pulse {
+  width: 20px;
+  height: 20px;
+  background: rgba(91,156,246,0.35);
+  border-radius: 50%;
+  position: absolute;
+  top: 0; left: 0;
+  animation: gps-pulse 1.5s ease-out infinite;
+}
+
+@keyframes gps-pulse {
+  0%  { transform: scale(0.6); opacity: 1; }
+  100%{ transform: scale(2);   opacity: 0; }
 }
 
 /* ── DESKTOP SIDEBAR ── */

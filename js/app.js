@@ -422,32 +422,83 @@ function updateVisitedCounter() {
 
 // ── DRAWER ─────────────────────────────────────────────────────────────────────
 function openDrawer() {
-  document.getElementById('drawer').classList.add('open');
+  const drawer = document.getElementById('drawer');
+  // During a tour on mobile: go to peek if not already open; keep open if already open
+  if (state.tour && isMobile()) {
+    if (!drawer.classList.contains('open')) {
+      drawer.classList.remove('open');
+      drawer.classList.add('peek');
+    }
+  } else {
+    drawer.classList.remove('peek');
+    drawer.classList.add('open');
+  }
 }
 
 function closeDrawer() {
-  document.getElementById('drawer').classList.remove('open');
+  const drawer = document.getElementById('drawer');
+  // During a tour, swipe-down on the full view collapses to peek (not hidden)
+  if (state.tour && isMobile() && drawer.classList.contains('open')) {
+    drawer.classList.remove('open');
+    drawer.classList.add('peek');
+  } else {
+    drawer.classList.remove('open');
+    drawer.classList.remove('peek');
+  }
+}
+
+function expandDrawer() {
+  const drawer = document.getElementById('drawer');
+  drawer.classList.remove('peek');
+  drawer.classList.add('open');
+}
+
+function updateTourPeekCard(props, index) {
+  const total = state.tour?.stops.length ?? 0;
+  const photoSrc = props.photo || './assets/images/placeholder.svg';
+  const img = document.getElementById('tour-peek-img');
+  if (img) { img.src = photoSrc; img.alt = props.title; }
+  const stopEl = document.getElementById('tour-peek-stop');
+  if (stopEl) stopEl.textContent = `Stop ${index + 1} of ${total}`;
+  const titleEl = document.getElementById('tour-peek-title');
+  if (titleEl) titleEl.textContent = props.title;
+  const card = document.getElementById('tour-peek-card');
+  if (card) card.setAttribute('aria-label', `${props.title}, stop ${index + 1} of ${total}. Tap to expand.`);
 }
 
 function initDrawerSwipe() {
   const drawer = document.getElementById('drawer');
-  let startY = 0, currentY = 0, dragging = false;
+  let startX = 0, startY = 0, lastX = 0, lastY = 0, gestureDir = null;
 
   drawer.addEventListener('touchstart', e => {
-    startY = e.touches[0].clientY;
-    currentY = startY;
-    dragging = true;
+    startX = lastX = e.touches[0].clientX;
+    startY = lastY = e.touches[0].clientY;
+    gestureDir = null;
   }, { passive: true });
 
   drawer.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    currentY = e.touches[0].clientY;
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+    if (!gestureDir) {
+      const dx = Math.abs(lastX - startX), dy = Math.abs(lastY - startY);
+      if (dx > 6 || dy > 6) gestureDir = dx > dy ? 'h' : 'v';
+    }
   }, { passive: true });
 
   drawer.addEventListener('touchend', () => {
-    if (!dragging) return;
-    dragging = false;
-    if (currentY - startY > 60) closeDrawer();
+    const dx = lastX - startX;
+    const dy = lastY - startY;
+
+    if (gestureDir === 'v' && dy > 60) {
+      closeDrawer(); // collapse or hide
+    } else if (gestureDir === 'h' && state.tour && Math.abs(dx) > 50) {
+      if (dx < 0 && state.tour.currentIndex < state.tour.stops.length - 1) {
+        goToTourStop(state.tour.currentIndex + 1); // swipe left → next
+      } else if (dx > 0 && state.tour.currentIndex > 0) {
+        goToTourStop(state.tour.currentIndex - 1); // swipe right → prev
+      }
+    }
+    gestureDir = null;
   });
 }
 
@@ -773,7 +824,8 @@ function goToTourStop(index) {
   state.activeId = id;
   activateMarker(id);
 
-  // Open detail
+  // Open detail (on mobile in tour mode, also update peek card)
+  if (isMobile()) updateTourPeekCard(props, index);
   openDetail(props);
 }
 
@@ -846,7 +898,12 @@ function exitTour() {
   document.getElementById('tour-progress').classList.add('hidden');
   document.body.classList.remove('tour-active');
 
-  closeDrawer();
+  stopGpsTracking();
+
+  // Fully hide drawer (not just peek)
+  const drawer = document.getElementById('drawer');
+  drawer.classList.remove('open', 'peek');
+
   document.getElementById('sidebar-content').innerHTML =
     '<div class="sidebar-empty"><p>Select a mural on the map to learn more.</p></div>';
   map.closePopup();
@@ -872,6 +929,53 @@ function closeAboutModal() {
   overlay.classList.add('hidden');
   overlay.setAttribute('aria-hidden', 'true');
   modal._returnFocus?.focus();
+}
+
+// ── GPS TRACKING ───────────────────────────────────────────────────────────────
+let gpsWatchId = null;
+let gpsMarker = null;
+
+function startGpsTracking() {
+  if (!navigator.geolocation) {
+    showToast('Location services are not available on this device.');
+    return;
+  }
+  gpsWatchId = navigator.geolocation.watchPosition(
+    pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      if (!gpsMarker) {
+        const icon = L.divIcon({
+          className: '',
+          html: '<div class="gps-dot"><div class="gps-dot-pulse"></div><div class="gps-dot-inner"></div></div>',
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        });
+        gpsMarker = L.marker([lat, lng], { icon, interactive: false, zIndexOffset: 1000 }).addTo(map);
+      } else {
+        gpsMarker.setLatLng([lat, lng]);
+      }
+      document.getElementById('tour-track-me')?.setAttribute('aria-pressed', 'true');
+      document.getElementById('tour-track-me')?.classList.add('active');
+    },
+    () => {
+      showToast('Unable to get your location. Check your browser permissions.');
+      stopGpsTracking();
+    },
+    { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+  );
+}
+
+function stopGpsTracking() {
+  if (gpsWatchId !== null) {
+    navigator.geolocation.clearWatch(gpsWatchId);
+    gpsWatchId = null;
+  }
+  if (gpsMarker) {
+    map.removeLayer(gpsMarker);
+    gpsMarker = null;
+  }
+  document.getElementById('tour-track-me')?.setAttribute('aria-pressed', 'false');
+  document.getElementById('tour-track-me')?.classList.remove('active');
 }
 
 // ── NEAR ME ────────────────────────────────────────────────────────────────────
@@ -924,6 +1028,18 @@ document.getElementById('tour-next')?.addEventListener('click', () => {
 });
 
 document.getElementById('tour-exit')?.addEventListener('click', exitTour);
+
+// Peek card → expand to full drawer
+document.getElementById('tour-peek-card')?.addEventListener('click', expandDrawer);
+document.getElementById('tour-peek-card')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); expandDrawer(); }
+});
+
+// Track Me toggle
+document.getElementById('tour-track-me')?.addEventListener('click', () => {
+  if (gpsWatchId !== null) stopGpsTracking();
+  else startGpsTracking();
+});
 
 document.getElementById('about-btn')?.addEventListener('click', openAboutModal);
 document.getElementById('sidebar-about-btn')?.addEventListener('click', openAboutModal);
