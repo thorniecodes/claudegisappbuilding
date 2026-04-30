@@ -1,3 +1,45 @@
+/**
+ * 20x21EUG Mural Tour — style.css
+ * ─────────────────────────────────────────────────────────────────────────────
+ * All styles for the mural tour app. Theming is controlled entirely through
+ * CSS custom properties in :root — change those values to restyle the whole app.
+ *
+ * LAYOUT OVERVIEW
+ *
+ *   Desktop (≥768px)
+ *   ┌──────────────────────────────────────────────────────────┐
+ *   │  #app-header  (fixed, full width, z-index 700)          │
+ *   ├─────────────┬────────────────────────────────────────────┤
+ *   │  #sidebar   │  #map                                     │
+ *   │  (520px,    │  #tour-progress (fixed below header       │
+ *   │  z-index    │   during active tour, z-index 600)        │
+ *   │  400)       │  #fab-area (floating, bottom-right)       │
+ *   └─────────────┴────────────────────────────────────────────┘
+ *
+ *   Mobile (<768px)
+ *   ┌──────────────────────────────────────────────────────────┐
+ *   │  #app-header                                            │
+ *   ├──────────────────────────────────────────────────────────┤
+ *   │  #map                                                   │
+ *   │  #fab-area (floating, bottom-right)                     │
+ *   └──────────────────────────────────────────────────────────┘
+ *        ↑ #drawer slides up from the bottom (3 states below)
+ *
+ * DRAWER STATES (mobile only)
+ *   hidden  — no class  — translateY(100%)           fully off screen
+ *   peek    — .peek     — translateY(100% - 120px)   peek strip at bottom
+ *   open    — .open     — translateY(0)              full 65vh
+ *
+ * BREAKPOINT: 768px
+ *   Below: drawer, mobile filter panel, and header filter button are active.
+ *   Above: sidebar replaces drawer; filter panel and filter button are hidden.
+ *
+ * iOS SAFE AREAS
+ *   --safe-top and --safe-bottom use env(safe-area-inset-*) to clear the
+ *   iPhone notch and home indicator. Requires viewport-fit=cover in the
+ *   <meta name="viewport"> tag (already set in index.html).
+ */
+
 :root {
   --bg:             #0D0D0D;
   --surface:        #1A1A1A;

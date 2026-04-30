@@ -1,13 +1,64 @@
+/**
+ * 20x21EUG Mural Tour — app.js
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Interactive walking-tour map for the 20x21EUG Mural Project, Eugene OR.
+ * Built with Leaflet.js, Mapbox tiles, and the Mapbox Directions API.
+ *
+ * HOW TO ADAPT THIS FOR YOUR OWN PROJECT
+ * ────────────────────────────────────────
+ * 1. Get a free Mapbox account at https://mapbox.com and create a public token.
+ *    Set MAPBOX_TOKEN below. REQUIRED: restrict the token to your deployment
+ *    domain in the Mapbox dashboard (Account → Access Tokens → URL restrictions).
+ *    Without URL restrictions, anyone can use your token against your quota.
+ *
+ * 2. Replace ./data/murals.geojson with your own point-of-interest data.
+ *    Each GeoJSON feature needs these properties:
+ *      id           {number}          Unique integer (1, 2, 3 …)
+ *      title        {string}          Display name
+ *      artist       {string}          Creator name
+ *      origin       {string}          Artist's city/country (e.g. "Eugene, OR")
+ *      year         {number}          Year created
+ *      neighborhood {string}          Must match a key in NEIGHBORHOOD_NAME_MAP
+ *      address      {string}          Street address
+ *      description  {string}          Long description
+ *      photo        {string}          Relative image path (e.g. "./assets/images/1.jpg")
+ *      website      {string}          Full https:// URL for "Learn More"
+ *      latLng       {[number,number]} [latitude, longitude]
+ *
+ * 3. Optionally replace ./data/Eugene_Neighborhoods.geojson with polygon
+ *    boundaries for your area. Boundaries are decorative — the app works without them.
+ *
+ * 4. Update TOUR_LOOPS, NEIGHBORHOOD_NAME_MAP, and TOTAL_MURALS below.
+ *
+ * DEPENDENCIES (loaded via CDN in index.html)
+ *   Leaflet 1.9.4  —  https://leafletjs.com
+ *   Google Fonts   —  Bebas Neue + Inter
+ */
+
 // ── MAPBOX CONFIG ──────────────────────────────────────────────────────────────
 // Replace YOUR_TOKEN_HERE with your Mapbox public token (starts with pk.)
-// Then restrict it to your GitHub Pages domain at mapbox.com → Account → Access Tokens
+// Restrict the token to your domain — this is required, not optional.
 const MAPBOX_TOKEN = 'pk.eyJ1IjoidGhvcm5oaWtvc3UiLCJhIjoiY21vajM0OWhsMDN4eDJxb2w2ZmlzcHRneSJ9.joS0q8uIBJ8qiXu84Vh1sQ';
 const MAPBOX_TILE_URL = `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`;
 
-const INITIAL_CENTER = [44.0490, -123.0950];
+// Starting map view — set to the center of your city.
+// Zoom 13 shows a walkable area; 15 is block-level; 12 is neighborhood-level.
+const INITIAL_CENTER = [44.0490, -123.0950]; // Eugene, OR downtown
 const INITIAL_ZOOM = 13;
-const TOTAL_MURALS = 24;
+const TOTAL_MURALS = 24; // Update to match the feature count in murals.geojson
 
+// ── TOUR LOOPS ─────────────────────────────────────────────────────────────────
+// Each entry defines a named walking tour over a subset of murals.
+//
+//   name       Display name shown in the tour selection card
+//   color      Hex color for pins, route line, and neighborhood boundary
+//   miles      Walking distance string shown on the card (e.g. "1.5")
+//   duration   Estimated time string (e.g. "~1.5 hrs")
+//   mural_ids  Ordered array of mural IDs defining the walking sequence.
+//              Order was optimized with a Nearest Neighbor + 2-opt TSP heuristic
+//              to minimize total walking distance. Re-run optimization if you
+//              add or move stops. The Mapbox Directions API supports up to 25
+//              waypoints per request — keep tours under that limit.
 const TOUR_LOOPS = {
   downtown: {
     name: 'Downtown Loop',
@@ -46,7 +97,8 @@ function getMuralColor(id) {
   return '#888880'; // neutral for murals not assigned to a loop
 }
 
-// Maps the neighborhood names used in mural properties → City of Eugene GIS names
+// Maps the neighborhood display names used in mural properties to the feature
+// names in the GeoJSON boundary file. Update when adapting for a different city.
 const NEIGHBORHOOD_NAME_MAP = {
   'Downtown':    'Downtown Neighborhood Association',
   'Whiteaker':   'Whiteaker Community Council',
@@ -54,34 +106,59 @@ const NEIGHBORHOOD_NAME_MAP = {
   'South Eugene': ['Friendly Area Neighbors', 'West University Neighbors']
 };
 
-// ── STATE ──────────────────────────────────────────────────────────────────────
+// ── APPLICATION STATE ──────────────────────────────────────────────────────────
+// All mutable runtime state lives here. neighborhoodGeoJSON is held separately
+// because it loads asynchronously and may still be null when markers are created.
 let neighborhoodGeoJSON = null;
 
 const state = {
-  markers: new Map(),   // id → { marker, props, lat, lng }
-  activeId: null,
-  visited: new Set(getVisited()),
-  tour: null,           // { loopKey, stops[], currentIndex } | null
-  tourRoute: null,      // Leaflet polyline for active tour
-  boundaryLayers: [],   // active neighborhood boundary polygons
-  savedFilters: null,
+  markers:      new Map(),  // Map<id, { marker: L.Marker, props, lat, lng }>
+  activeId:     null,       // ID of the currently highlighted mural, or null
+  visited:      new Set(getVisited()), // Set<id> — persisted in localStorage
+  tour:         null,       // { loopKey, stops: number[], currentIndex } | null
+  tourRoute:    null,       // Leaflet polyline for the active walking route
+  boundaryLayers: [],       // Leaflet layers for neighborhood boundary polygons
+  savedFilters: null,       // filter snapshot saved on tour start; restored on exit
+  gpsWatchId:   null,       // ID from navigator.geolocation.watchPosition, or null
+  gpsMarker:    null,       // Leaflet marker for the user's live GPS position, or null
   filters: {
-    neighborhoods: new Set(),
-    years: new Set(),
-    originBucket: 'all',  // 'all' | 'local' | 'usa' | 'international'
-    visitedStatus: 'all', // 'all' | 'unvisited' | 'visited'
+    neighborhoods: new Set(), // Set of neighborhood name strings
+    years:         new Set(), // Set of year strings ('2016', '2017', …)
+    originBucket:  'all',     // 'all' | 'local' | 'usa' | 'international'
+    visitedStatus: 'all',     // 'all' | 'unvisited' | 'visited'
   }
 };
 
-// ── HELPERS ────────────────────────────────────────────────────────────────────
+// ── UTILITY HELPERS ────────────────────────────────────────────────────────────
+
+/**
+ * Escapes a value for safe insertion into HTML. Handles null/undefined gracefully.
+ * Call this on every external data value before inserting into innerHTML.
+ */
 function escapeHtml(s) {
+  if (s == null) return '';
   return String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+/**
+ * Validates that a URL uses http: or https: before inserting it into an <a href>.
+ * Prevents javascript: protocol injection if GeoJSON data is ever tampered with.
+ */
+function safeUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return (parsed.protocol === 'https:' || parsed.protocol === 'http:') ? url : '#';
+  } catch {
+    return '#';
+  }
+}
+
+/** Returns true when the viewport is narrower than the desktop breakpoint. */
 function isMobile() { return window.innerWidth < 768; }
 
+/** Returns true when the OS "reduce motion" accessibility setting is enabled. */
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -107,24 +184,35 @@ function getOriginBucket(origin) {
   return 'international';
 }
 
+/** Builds a Google Maps walking-directions URL for the given coordinate. */
 function getDirectionsURL(lat, lng) {
   return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
 }
 
+/**
+ * Reads visited mural IDs from localStorage.
+ * Falls back to [] if the entry is missing or the stored JSON is malformed.
+ */
 function getVisited() {
   try { return JSON.parse(localStorage.getItem('visited_murals') || '[]'); }
   catch { return []; }
 }
 
+/** Persists the current visited Set to localStorage as a JSON array of IDs. */
 function saveVisited() {
   localStorage.setItem('visited_murals', JSON.stringify([...state.visited]));
 }
 
-// ── MAP INIT ───────────────────────────────────────────────────────────────────
+// ── MAP INITIALIZATION ─────────────────────────────────────────────────────────
+// tap: false disables Leaflet's synthetic click emulation, which interfered with
+// the native iOS double-tap-to-zoom gesture on modern mobile browsers.
 const map = L.map('map', { zoomControl: false, tap: false }).setView(INITIAL_CENTER, INITIAL_ZOOM);
 
+// Place zoom controls at bottom-left to stay clear of the fixed header.
 L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
+// Use Mapbox dark tiles when a real token is configured; fall back to OSM.
+// The OSM fallback is useful for local development but lacks the dark theme.
 const useMapbox = MAPBOX_TOKEN !== 'YOUR_TOKEN_HERE';
 
 if (useMapbox) {
@@ -215,7 +303,22 @@ fetch('./data/murals.geojson')
     el.innerHTML = '<p style="color:var(--accent);padding:24px;text-align:center">Failed to load mural data.<br>Please refresh.</p>';
   });
 
-// ── PIN ICON ───────────────────────────────────────────────────────────────────
+// ── CUSTOM MAP PINS ────────────────────────────────────────────────────────────
+
+/**
+ * Creates a custom Leaflet divIcon SVG pin. Inner content varies by state:
+ *   tourNumber set → shows stop number
+ *   isVisited       → shows a checkmark
+ *   default         → shows a small dot
+ *
+ * className: '' prevents Leaflet from adding the default white-box leaflet-div-icon style.
+ *
+ * @param {string}      title      - Used for aria-label and title attribute
+ * @param {boolean}     isVisited  - Renders grey with checkmark when true
+ * @param {number|null} tourNumber - Stop number displayed during tour mode
+ * @param {string}      color      - Hex fill color (usually the loop color)
+ * @returns {L.DivIcon}
+ */
 function createPinIcon(title, isVisited = false, tourNumber = null, color = '#E8401C') {
   const fill = isVisited ? '#555550' : color;
   const inner = tourNumber !== null
@@ -239,6 +342,12 @@ function createPinIcon(title, isVisited = false, tourNumber = null, color = '#E8
 }
 
 // ── MARKERS ────────────────────────────────────────────────────────────────────
+
+/**
+ * Creates a Leaflet marker for each GeoJSON feature, registers click and keyboard
+ * handlers, stores it in state.markers, and fits the map to show all markers.
+ * @param {object[]} features - GeoJSON feature array from murals.geojson
+ */
 function initMarkers(features) {
   const latlngs = [];
   features.forEach(f => {
@@ -266,6 +375,11 @@ function initMarkers(features) {
   if (latlngs.length) map.fitBounds(L.latLngBounds(latlngs), { padding: [40, 40] });
 }
 
+/**
+ * Handles a marker tap/click. During a tour, tapping a tour-stop pin navigates
+ * to it (updating the peek card and progress bar) and expands the drawer on mobile.
+ * Outside a tour, shows a popup on mobile and opens the full detail on desktop.
+ */
 function handlePinClick(props, lat, lng, marker) {
   if (state.activeId !== null && state.activeId !== props.id) {
     deactivateMarker(state.activeId);
@@ -363,7 +477,7 @@ function buildDetailHTML(props) {
       <p class="detail-meta">${escapeHtml(props.artist)} · ${escapeHtml(props.origin)}</p>
       <div class="detail-tags" aria-label="Mural attributes">
         <span class="detail-tag detail-tag-neighborhood" style="border-color:${loopColor};color:${loopColor}">${escapeHtml(props.neighborhood)}</span>
-        <span class="detail-tag">${props.year}</span>
+        <span class="detail-tag">${escapeHtml(String(props.year))}</span>
         <span class="detail-tag">${escapeHtml(originLabel)}</span>
         <span class="detail-tag detail-tag-visited${isVisited ? ' active' : ''}" aria-label="${isVisited ? 'Visited' : 'Not yet visited'}">${isVisited ? '&#10003;&nbsp;Visited' : 'Not&nbsp;Visited'}</span>
       </div>
@@ -373,7 +487,7 @@ function buildDetailHTML(props) {
       ${visitedBtn}
       <div class="detail-actions">
         ${directionsBtn}
-        <a href="${escapeHtml(props.website)}" target="_blank" rel="noopener" class="btn-action btn-action-secondary" aria-label="Learn more about this mural (opens in new tab)">Learn More</a>
+        <a href="${safeUrl(props.website)}" target="_blank" rel="noopener" class="btn-action btn-action-secondary" aria-label="Learn more about this mural (opens in new tab)">Learn More</a>
       </div>
     </div>`;
 }
@@ -434,7 +548,17 @@ function updateVisitedCounter() {
   }
 }
 
-// ── DRAWER ─────────────────────────────────────────────────────────────────────
+// ── DRAWER STATE MACHINE ───────────────────────────────────────────────────────
+// The mobile drawer has three states driven by CSS classes:
+//   hidden  (no class)  translateY(100%)          — fully off screen
+//   peek    (.peek)     translateY(100% - 120px)  — peek strip visible at bottom
+//   open    (.open)     translateY(0)             — full height (65vh)
+//
+// Tour mode modifies transitions:
+//   openDrawer  → goes to peek (not open) during a tour, to keep map visible
+//   closeDrawer → collapses to peek (not hidden) during a tour, to keep peek card
+//   expandDrawer → always goes to full open (triggered by tapping the peek card)
+
 function openDrawer() {
   const drawer = document.getElementById('drawer');
   // During a tour on mobile: go to peek if not already open; keep open if already open
@@ -480,6 +604,28 @@ function updateTourPeekCard(props, index) {
   if (card) card.setAttribute('aria-label', `${props.title}, stop ${index + 1} of ${total}. Tap to expand.`);
 }
 
+// ── FOCUS TRAP ─────────────────────────────────────────────────────────────────
+// Required by the ARIA dialog pattern: while a modal/sheet is open, Tab and
+// Shift+Tab must cycle focus only within that element (WCAG 2.1 success criterion
+// 2.1.2 — No Keyboard Trap). Returns a cleanup function; call it on close.
+function trapFocus(element) {
+  const sel = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+  const focusable = [...element.querySelectorAll(sel)];
+  const first = focusable[0];
+  const last  = focusable[focusable.length - 1];
+  if (!first) return () => {};
+  function onKeyDown(e) {
+    if (e.key !== 'Tab') return;
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
+    }
+  }
+  element.addEventListener('keydown', onKeyDown);
+  return () => element.removeEventListener('keydown', onKeyDown);
+}
+
 function initDrawerSwipe() {
   const drawer = document.getElementById('drawer');
   let startX = 0, startY = 0, lastX = 0, lastY = 0, gestureDir = null;
@@ -517,6 +663,11 @@ function initDrawerSwipe() {
 }
 
 // ── FILTERS ────────────────────────────────────────────────────────────────────
+// Filter state lives in state.filters. Two UIs share the same state:
+//   Mobile:  slide-in panel (#filter-panel) built by buildFilterPanel()
+//   Desktop: inline sidebar chips built by buildSidebarFilters()
+// Any filter change calls applyFilters() then rebuilds both UIs.
+
 const NEIGHBORHOODS = ['Downtown', 'Whiteaker', 'West Eugene', 'South Eugene'];
 const YEARS = ['2016', '2017', '2018', '2019'];
 const ORIGIN_BUCKETS = [
@@ -567,7 +718,6 @@ function applyFilters() {
     if (f.visitedStatus === 'visited' && !state.visited.has(id)) show = false;
     if (f.visitedStatus === 'unvisited' && state.visited.has(id)) show = false;
 
-
     if (show) marker.addTo(map);
     else if (map.hasLayer(marker)) map.removeLayer(marker);
   });
@@ -588,7 +738,6 @@ function resetFilters() {
   state.filters.years.clear();
   state.filters.originBucket = 'all';
   state.filters.visitedStatus = 'all';
-
 }
 
 function buildFilterControls(container) {
@@ -666,12 +815,16 @@ function openFilterPanel() {
   panel.setAttribute('aria-hidden', 'false');
   overlay.classList.remove('hidden');
   overlay.setAttribute('aria-hidden', 'false');
-  setTimeout(() => panel.querySelector('button, [href], [tabindex]')?.focus(), 50);
+  setTimeout(() => {
+    panel.querySelector('button, [href], [tabindex]')?.focus();
+    panel._trapCleanup = trapFocus(panel);
+  }, 50);
 }
 
 function closeFilterPanel() {
   const panel = document.getElementById('filter-panel');
   const overlay = document.getElementById('filter-overlay');
+  panel._trapCleanup?.();
   panel.classList.remove('open');
   panel.setAttribute('aria-hidden', 'true');
   overlay.classList.add('hidden');
@@ -732,7 +885,13 @@ function buildSidebarFilters() {
   });
 }
 
-// ── TOUR ───────────────────────────────────────────────────────────────────────
+// ── TOUR LIFECYCLE ─────────────────────────────────────────────────────────────
+// Three phases:
+//   startTour(key)     — saves filter state, dims non-tour markers, numbers tour
+//                        markers, fetches walking route, navigates to stop 0
+//   goToTourStop(i)    — flies to stop i, updates progress bar + peek card + detail
+//   exitTour()         — restores markers, re-enables filters, removes route
+
 function buildTourCards() {
   const container = document.getElementById('tour-cards');
   container.innerHTML = Object.entries(TOUR_LOOPS).map(([key, loop]) => `
@@ -772,11 +931,15 @@ function openTourSheet() {
   sheet.setAttribute('aria-hidden', 'false');
   document.getElementById('tour-overlay').classList.remove('hidden');
   document.getElementById('tour-overlay').setAttribute('aria-hidden', 'false');
-  setTimeout(() => sheet.querySelector('button, [href], [tabindex]')?.focus(), 50);
+  setTimeout(() => {
+    sheet.querySelector('button, [href], [tabindex]')?.focus();
+    sheet._trapCleanup = trapFocus(sheet);
+  }, 50);
 }
 
 function closeTourSheet() {
   const sheet = document.getElementById('tour-sheet');
+  sheet._trapCleanup?.();
   sheet.classList.remove('open');
   sheet.setAttribute('aria-hidden', 'true');
   document.getElementById('tour-overlay').classList.add('hidden');
@@ -858,6 +1021,12 @@ function goToTourStop(index) {
   openDetail(props);
 }
 
+/**
+ * Fetches a real walking route from the Mapbox Directions API and draws it as a
+ * solid white polyline. Falls back to straight-line segments if the request fails.
+ * Mapbox Walking profile avoids highways and prefers pedestrian paths.
+ * Coordinates are passed as lng,lat (Mapbox order) but stored as [lat,lng] (Leaflet order).
+ */
 async function fetchAndDrawTourRoute(loop) {
   const waypoints = loop.mural_ids
     .map(id => state.markers.get(id))
@@ -947,12 +1116,16 @@ function openAboutModal() {
   modal.setAttribute('aria-hidden', 'false');
   overlay.classList.remove('hidden');
   overlay.setAttribute('aria-hidden', 'false');
-  setTimeout(() => modal.querySelector('button, [href], [tabindex]')?.focus(), 50);
+  setTimeout(() => {
+    modal.querySelector('button, [href], [tabindex]')?.focus();
+    modal._trapCleanup = trapFocus(modal);
+  }, 50);
 }
 
 function closeAboutModal() {
   const modal = document.getElementById('about-modal');
   const overlay = document.getElementById('about-overlay');
+  modal._trapCleanup?.();
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
   overlay.classList.add('hidden');
@@ -961,27 +1134,27 @@ function closeAboutModal() {
 }
 
 // ── GPS TRACKING ───────────────────────────────────────────────────────────────
-let gpsWatchId = null;
-let gpsMarker = null;
+// Uses the browser's native Geolocation API (no Google services required).
+// state.gpsWatchId and state.gpsMarker track the active session.
 
 function startGpsTracking() {
   if (!navigator.geolocation) {
     showToast('Location services are not available on this device.');
     return;
   }
-  gpsWatchId = navigator.geolocation.watchPosition(
+  state.gpsWatchId = navigator.geolocation.watchPosition(
     pos => {
       const { latitude: lat, longitude: lng } = pos.coords;
-      if (!gpsMarker) {
+      if (!state.gpsMarker) {
         const icon = L.divIcon({
           className: '',
           html: '<div class="gps-dot"><div class="gps-dot-pulse"></div><div class="gps-dot-inner"></div></div>',
           iconSize: [20, 20],
           iconAnchor: [10, 10]
         });
-        gpsMarker = L.marker([lat, lng], { icon, interactive: false, zIndexOffset: 1000 }).addTo(map);
+        state.gpsMarker = L.marker([lat, lng], { icon, interactive: false, zIndexOffset: 1000 }).addTo(map);
       } else {
-        gpsMarker.setLatLng([lat, lng]);
+        state.gpsMarker.setLatLng([lat, lng]);
       }
       document.getElementById('tour-track-me')?.setAttribute('aria-pressed', 'true');
       document.getElementById('tour-track-me')?.classList.add('active');
@@ -995,13 +1168,13 @@ function startGpsTracking() {
 }
 
 function stopGpsTracking() {
-  if (gpsWatchId !== null) {
-    navigator.geolocation.clearWatch(gpsWatchId);
-    gpsWatchId = null;
+  if (state.gpsWatchId !== null) {
+    navigator.geolocation.clearWatch(state.gpsWatchId);
+    state.gpsWatchId = null;
   }
-  if (gpsMarker) {
-    map.removeLayer(gpsMarker);
-    gpsMarker = null;
+  if (state.gpsMarker) {
+    map.removeLayer(state.gpsMarker);
+    state.gpsMarker = null;
   }
   document.getElementById('tour-track-me')?.setAttribute('aria-pressed', 'false');
   document.getElementById('tour-track-me')?.classList.remove('active');
@@ -1066,7 +1239,7 @@ document.getElementById('tour-peek-card')?.addEventListener('keydown', e => {
 
 // Track Me toggle
 document.getElementById('tour-track-me')?.addEventListener('click', () => {
-  if (gpsWatchId !== null) stopGpsTracking();
+  if (state.gpsWatchId !== null) stopGpsTracking();
   else startGpsTracking();
 });
 
