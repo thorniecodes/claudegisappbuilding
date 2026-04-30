@@ -28,7 +28,7 @@
  * 3. Optionally replace ./data/Eugene_Neighborhoods.geojson with polygon
  *    boundaries for your area. Boundaries are decorative — the app works without them.
  *
- * 4. Update TOUR_LOOPS, NEIGHBORHOOD_NAME_MAP, and TOTAL_MURALS below.
+ * 4. Update TOUR_ROUTES, NEIGHBORHOOD_NAME_MAP, and TOTAL_MURALS below.
  *
  * DEPENDENCIES (loaded via CDN in index.html)
  *   Leaflet 1.9.4  —  https://leafletjs.com
@@ -47,7 +47,7 @@ const INITIAL_CENTER = [44.0490, -123.0950]; // Eugene, OR downtown
 const INITIAL_ZOOM = 13;
 const TOTAL_MURALS = 24; // Update to match the feature count in murals.geojson
 
-// ── TOUR LOOPS ─────────────────────────────────────────────────────────────────
+// ── TOUR ROUTES ────────────────────────────────────────────────────────────────
 // Each entry defines a named walking tour over a subset of murals.
 //
 //   name       Display name shown in the tour selection card
@@ -59,16 +59,16 @@ const TOTAL_MURALS = 24; // Update to match the feature count in murals.geojson
 //              to minimize total walking distance. Re-run optimization if you
 //              add or move stops. The Mapbox Directions API supports up to 25
 //              waypoints per request — keep tours under that limit.
-const TOUR_LOOPS = {
+const TOUR_ROUTES = {
   downtown: {
-    name: 'Downtown Loop',
+    name: 'Downtown Route',
     color: '#E8401C',
     miles: '1.5',
     duration: '~1.5 hrs',
     mural_ids: [15, 19, 11, 20, 18, 9, 17, 8, 2, 5, 12, 1, 7, 23, 16]
   },
   whiteaker: {
-    name: 'Whiteaker Loop',
+    name: 'Whiteaker Route',
     color: '#4A90D9',
     miles: '1.8',
     duration: '~1 hr 15 min',
@@ -91,10 +91,10 @@ const TOUR_LOOPS = {
 };
 
 function getMuralColor(id) {
-  for (const loop of Object.values(TOUR_LOOPS)) {
-    if (loop.mural_ids.includes(id)) return loop.color;
+  for (const route of Object.values(TOUR_ROUTES)) {
+    if (route.mural_ids.includes(id)) return route.color;
   }
-  return '#888880'; // neutral for murals not assigned to a loop
+  return '#888880'; // neutral for murals not assigned to a route
 }
 
 // Maps the neighborhood display names used in mural properties to the feature
@@ -115,7 +115,7 @@ const state = {
   markers:      new Map(),  // Map<id, { marker: L.Marker, props, lat, lng }>
   activeId:     null,       // ID of the currently highlighted mural, or null
   visited:      new Set(getVisited()), // Set<id> — persisted in localStorage
-  tour:         null,       // { loopKey, stops: number[], currentIndex } | null
+  tour:         null,       // { routeKey, stops: number[], currentIndex } | null
   tourRoute:    null,       // Leaflet polyline for the active walking route
   boundaryLayers: [],       // Leaflet layers for neighborhood boundary polygons
   savedFilters: null,       // filter snapshot saved on tour start; restored on exit
@@ -247,9 +247,9 @@ fetch('./data/Eugene_Neighborhoods.geojson')
   .catch(() => {}); // non-critical — boundaries simply won't show if unavailable
 
 function getNeighborhoodColor(neighborhood) {
-  for (const loop of Object.values(TOUR_LOOPS)) {
-    if (loop.mural_ids.some(id => state.markers.get(id)?.props.neighborhood === neighborhood)) {
-      return loop.color;
+  for (const route of Object.values(TOUR_ROUTES)) {
+    if (route.mural_ids.some(id => state.markers.get(id)?.props.neighborhood === neighborhood)) {
+      return route.color;
     }
   }
   return '#888880';
@@ -316,7 +316,7 @@ fetch('./data/murals.geojson')
  * @param {string}      title      - Used for aria-label and title attribute
  * @param {boolean}     isVisited  - Renders grey with checkmark when true
  * @param {number|null} tourNumber - Stop number displayed during tour mode
- * @param {string}      color      - Hex fill color (usually the loop color)
+ * @param {string}      color      - Hex fill color (usually the route color)
  * @returns {L.DivIcon}
  */
 function createPinIcon(title, isVisited = false, tourNumber = null, color = '#E8401C') {
@@ -469,14 +469,14 @@ function buildDetailHTML(props) {
 
   const originBucket = getOriginBucket(props.origin);
   const originLabel = { local: 'Local', usa: 'USA', international: 'International' }[originBucket] || props.origin;
-  const loopColor = getMuralColor(props.id);
+  const routeColor = getMuralColor(props.id);
 
   return `<img src="${escapeHtml(photoSrc)}" alt="${escapeHtml(props.title)}" class="detail-img" loading="lazy" onerror="this.src='./assets/images/placeholder.svg'">
     <div class="detail-body">
       <h2 class="detail-title">${escapeHtml(props.title)}</h2>
       <p class="detail-meta">${escapeHtml(props.artist)} · ${escapeHtml(props.origin)}</p>
       <div class="detail-tags" aria-label="Mural attributes">
-        <span class="detail-tag detail-tag-neighborhood" style="border-color:${loopColor};color:${loopColor}">${escapeHtml(props.neighborhood)}</span>
+        <span class="detail-tag detail-tag-neighborhood" style="border-color:${routeColor};color:${routeColor}">${escapeHtml(props.neighborhood)}</span>
         <span class="detail-tag">${escapeHtml(String(props.year))}</span>
         <span class="detail-tag">${escapeHtml(originLabel)}</span>
         <span class="detail-tag detail-tag-visited${isVisited ? ' active' : ''}" aria-label="${isVisited ? 'Visited' : 'Not yet visited'}">${isVisited ? '&#10003;&nbsp;Visited' : 'Not&nbsp;Visited'}</span>
@@ -894,29 +894,29 @@ function buildSidebarFilters() {
 
 function buildTourCards() {
   const container = document.getElementById('tour-cards');
-  container.innerHTML = Object.entries(TOUR_LOOPS).map(([key, loop]) => `
+  container.innerHTML = Object.entries(TOUR_ROUTES).map(([key, route]) => `
     <div class="tour-card">
       <div class="tour-card-header">
-        <div class="tour-card-dot" style="background:${loop.color}" aria-hidden="true"></div>
-        <span class="tour-card-name">${loop.name}</span>
+        <div class="tour-card-dot" style="background:${route.color}" aria-hidden="true"></div>
+        <span class="tour-card-name">${route.name}</span>
       </div>
-      <div class="tour-card-stats" aria-label="${loop.mural_ids.length} stops, ${loop.miles} miles, ${loop.duration}">
+      <div class="tour-card-stats" aria-label="${route.mural_ids.length} stops, ${route.miles} miles, ${route.duration}">
         <div class="tour-stat">
-          <span class="tour-stat-value">${loop.mural_ids.length}</span>
+          <span class="tour-stat-value">${route.mural_ids.length}</span>
           <span class="tour-stat-label">stops</span>
         </div>
         <div class="tour-stat-sep" aria-hidden="true"></div>
         <div class="tour-stat">
-          <span class="tour-stat-value">${loop.miles} mi</span>
+          <span class="tour-stat-value">${route.miles} mi</span>
           <span class="tour-stat-label">distance</span>
         </div>
         <div class="tour-stat-sep" aria-hidden="true"></div>
         <div class="tour-stat">
-          <span class="tour-stat-value">${loop.duration}</span>
+          <span class="tour-stat-value">${route.duration}</span>
           <span class="tour-stat-label">est. time</span>
         </div>
       </div>
-      <button class="tour-card-btn" data-tour-key="${key}" aria-label="Start ${loop.name}">Start Tour &#8594;</button>
+      <button class="tour-card-btn" data-tour-key="${key}" aria-label="Start ${route.name}">Start Tour &#8594;</button>
     </div>`).join('');
 
   container.querySelectorAll('.tour-card-btn').forEach(btn => {
@@ -947,8 +947,8 @@ function closeTourSheet() {
   sheet._returnFocus?.focus();
 }
 
-function startTour(loopKey) {
-  const loop = TOUR_LOOPS[loopKey];
+function startTour(routeKey) {
+  const route = TOUR_ROUTES[routeKey];
 
   // Save current filter state
   state.savedFilters = {
@@ -958,34 +958,34 @@ function startTour(loopKey) {
     visitedStatus: state.filters.visitedStatus
   };
 
-  state.tour = { loopKey, stops: loop.mural_ids, currentIndex: 0 };
+  state.tour = { routeKey, stops: route.mural_ids, currentIndex: 0 };
 
   // Disable filter controls
   const filterBtn = document.getElementById('filter-btn');
   if (filterBtn) { filterBtn.disabled = true; filterBtn.title = 'Filters unavailable during tour'; }
 
-  // Dim non-loop markers, number loop markers
+  // Dim non-route markers, number route markers
   state.markers.forEach(({ marker, props }, id) => {
-    const stopIndex = loop.mural_ids.indexOf(id);
+    const stopIndex = route.mural_ids.indexOf(id);
     if (stopIndex === -1) {
       marker.addTo(map);
       marker.setOpacity(0.3);
     } else {
       marker.addTo(map);
       marker.setOpacity(1);
-      marker.setIcon(createPinIcon(props.title, state.visited.has(id), stopIndex + 1, loop.color));
+      marker.setIcon(createPinIcon(props.title, state.visited.has(id), stopIndex + 1, route.color));
     }
   });
 
   // Show neighborhood boundaries for this tour's pins in the tour's color
   clearBoundaryLayers();
   const tourNeighborhoods = [...new Set(
-    loop.mural_ids.map(id => state.markers.get(id)?.props.neighborhood).filter(Boolean)
+    route.mural_ids.map(id => state.markers.get(id)?.props.neighborhood).filter(Boolean)
   )];
-  tourNeighborhoods.forEach(n => showNeighborhoodBoundary(n, loop.color));
+  tourNeighborhoods.forEach(n => showNeighborhoodBoundary(n, route.color));
 
   // Fetch walking route from Mapbox Directions API, fall back to straight lines
-  fetchAndDrawTourRoute(loop);
+  fetchAndDrawTourRoute(route);
 
   document.getElementById('tour-progress').classList.remove('hidden');
   document.body.classList.add('tour-active');
@@ -1027,8 +1027,8 @@ function goToTourStop(index) {
  * Mapbox Walking profile avoids highways and prefers pedestrian paths.
  * Coordinates are passed as lng,lat (Mapbox order) but stored as [lat,lng] (Leaflet order).
  */
-async function fetchAndDrawTourRoute(loop) {
-  const waypoints = loop.mural_ids
+async function fetchAndDrawTourRoute(route) {
+  const waypoints = route.mural_ids
     .map(id => state.markers.get(id))
     .filter(Boolean)
     .map(({ lng, lat }) => `${lng},${lat}`)  // Mapbox expects lng,lat
@@ -1045,15 +1045,15 @@ async function fetchAndDrawTourRoute(loop) {
         color: '#F5F0EB', weight: 5, opacity: 0.9
       }).addTo(map);
     } else {
-      drawStraightLineRoute(loop);
+      drawStraightLineRoute(route);
     }
   } catch {
-    drawStraightLineRoute(loop);
+    drawStraightLineRoute(route);
   }
 }
 
-function drawStraightLineRoute(loop) {
-  const coords = loop.mural_ids
+function drawStraightLineRoute(route) {
+  const coords = route.mural_ids
     .map(id => state.markers.get(id))
     .filter(Boolean)
     .map(({ lat, lng }) => [lat, lng]);
