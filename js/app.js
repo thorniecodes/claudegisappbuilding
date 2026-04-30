@@ -844,7 +844,7 @@ async function fetchAndDrawTourRoute(loop) {
     if (data.routes && data.routes.length > 0) {
       const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
       state.tourRoute = L.polyline(coords, {
-        color: loop.color, weight: 4, opacity: 0.8, dashArray: '8, 10'
+        color: '#F5F0EB', weight: 5, opacity: 0.9
       }).addTo(map);
     } else {
       drawStraightLineRoute(loop);
@@ -860,7 +860,7 @@ function drawStraightLineRoute(loop) {
     .filter(Boolean)
     .map(({ lat, lng }) => [lat, lng]);
   state.tourRoute = L.polyline(coords, {
-    color: loop.color, weight: 4, opacity: 0.75, dashArray: '8, 10'
+    color: '#F5F0EB', weight: 5, opacity: 0.9
   }).addTo(map);
 }
 
