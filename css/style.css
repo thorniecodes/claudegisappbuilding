@@ -809,8 +809,14 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
   border-radius: 8px;
   padding: 14px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
+}
+
+.tour-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .tour-card-dot {
@@ -818,8 +824,6 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
   border-radius: 50%;
   flex-shrink: 0;
 }
-
-.tour-card-info { flex: 1; min-width: 0; }
 
 .tour-card-name {
   font-family: 'Bebas Neue', sans-serif;
@@ -829,13 +833,47 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
   line-height: 1.1;
 }
 
-.tour-card-desc {
-  font-size: 16px;
+.tour-card-stats {
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  border-radius: 6px;
+  padding: 10px 0;
+}
+
+.tour-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.tour-stat-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.tour-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
   color: var(--text-secondary);
-  margin-top: 3px;
+}
+
+.tour-stat-sep {
+  width: 1px;
+  height: 30px;
+  background: var(--border);
+  flex-shrink: 0;
 }
 
 .tour-card-btn {
+  width: 100%;
   min-height: 44px;
   padding: 0 14px;
   background: var(--accent);
@@ -846,8 +884,6 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
   transition: background 0.15s;
 }
 

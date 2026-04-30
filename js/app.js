@@ -11,26 +11,30 @@ const TOTAL_MURALS = 24;
 const TOUR_LOOPS = {
   downtown: {
     name: 'Downtown Loop',
-    description: '~1.5 miles · 15 murals · ~45 min',
     color: '#E8401C',
+    miles: '1.5',
+    duration: '~1.5 hrs',
     mural_ids: [15, 19, 11, 20, 18, 9, 17, 8, 2, 5, 12, 1, 7, 23, 16]
   },
   whiteaker: {
     name: 'Whiteaker Loop',
-    description: '~1.8 miles · 6 murals · ~55 min',
     color: '#4A90D9',
+    miles: '1.8',
+    duration: '~1 hr 15 min',
     mural_ids: [3, 10, 4, 6, 22, 13]
   },
   south: {
     name: 'South Eugene',
-    description: '~0.5 miles · 2 murals · ~20 min',
     color: '#7BC67E',
+    miles: '1.7',
+    duration: '~1 hr',
     mural_ids: [14, 21]
   },
   west: {
-    name: 'West Eugene Loop',
-    description: '1 mural · ~10 min',
+    name: 'West Eugene',
     color: '#D4A843',
+    miles: '<0.1',
+    duration: '~15 min',
     mural_ids: [24]
   }
 };
@@ -723,12 +727,27 @@ function buildTourCards() {
   const container = document.getElementById('tour-cards');
   container.innerHTML = Object.entries(TOUR_LOOPS).map(([key, loop]) => `
     <div class="tour-card">
-      <div class="tour-card-dot" style="background:${loop.color}" aria-hidden="true"></div>
-      <div class="tour-card-info">
-        <div class="tour-card-name">${loop.name}</div>
-        <div class="tour-card-desc">${loop.description}</div>
+      <div class="tour-card-header">
+        <div class="tour-card-dot" style="background:${loop.color}" aria-hidden="true"></div>
+        <span class="tour-card-name">${loop.name}</span>
       </div>
-      <button class="tour-card-btn" data-tour-key="${key}">Start Tour &#8594;</button>
+      <div class="tour-card-stats" aria-label="${loop.mural_ids.length} stops, ${loop.miles} miles, ${loop.duration}">
+        <div class="tour-stat">
+          <span class="tour-stat-value">${loop.mural_ids.length}</span>
+          <span class="tour-stat-label">stops</span>
+        </div>
+        <div class="tour-stat-sep" aria-hidden="true"></div>
+        <div class="tour-stat">
+          <span class="tour-stat-value">${loop.miles} mi</span>
+          <span class="tour-stat-label">distance</span>
+        </div>
+        <div class="tour-stat-sep" aria-hidden="true"></div>
+        <div class="tour-stat">
+          <span class="tour-stat-value">${loop.duration}</span>
+          <span class="tour-stat-label">est. time</span>
+        </div>
+      </div>
+      <button class="tour-card-btn" data-tour-key="${key}" aria-label="Start ${loop.name}">Start Tour &#8594;</button>
     </div>`).join('');
 
   container.querySelectorAll('.tour-card-btn').forEach(btn => {
