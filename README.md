@@ -1,8 +1,8 @@
 # Building a GIS App with Claude Code
-Learning how to build a GIS app at the GIS in Action Conference. Vibe Coding with Claude Workshop 2026-04-28. Any images or text has been used for educational purposes only for learning how to develop GIS apps using generative artificial intelligence.
+This app was designed while learning how to build a GIS app at the GIS in Action Conference Vibe Coding with Claude Workshop 2026-04-28. Any images or text has been used for educational purposes only for learning how to develop GIS apps using generative artificial intelligence. 
 
 # Eugene Mural Tour
-[https://thorniecodes.github.io/claudegisappbuilding/](https://thorniecodes.github.io/claudegisappbuilding/)
+[https://thorniecodes.github.io/2021eugmuraltoursapp/](https://thorniecodes.github.io/2021eugmuraltoursapp/)
 
 An interactive, mobile-friendly web map for exploring the public murals of Eugene, Oregon. Built as a self-guided walking tour, this app lets residents and visitors discover the city's vibrant outdoor art scene — from neighborhood walls in the Whiteaker to landmark pieces in downtown.
 Mural data is sourced from the 20x21EUG Mural Project, a City of Eugene Cultural Services initiative that commissioned over 20 world-class murals by local, national, and international artists in preparation for the 2022 IAAF World Athletics Championships. Each pin on the map includes the artist's name, country of origin, year painted, address, and a description of the work and its context.
@@ -74,3 +74,16 @@ eugene-mural-tour/
 ├── manifest.json
 └── .nojekyll
 ```
+
+# Intellectual Property Rights Information
+This web application — 20x21EUG Mural Project Mural Tour — is an independent, non-commercial, educational project created to learn and demonstrate interactive GIS web mapping techniques using open-source tools including Leaflet.js and GitHub Pages. It is not affiliated with, endorsed by, or produced by the City of Eugene or the 20x21EUG Mural Project.
+
+All mural images, artist descriptions, and project content displayed in this app are sourced from the 20x21eug.com website and remain the property of their respective rights holders.
+
+Content copyright
+© 20x21EUG Mural Project / City of Eugene Cultural Services Public Art Program. All rights reserved.
+Photography
+Debbie Williamson Smith, Lena Freeman, Athena Delene, Ben Schorzman, Martha Cooper, and contributing photographers of the 20x21EUG Mural Project.
+Mural artwork
+Each mural remains the intellectual property of its respective artist.
+This app was built for personal educational purposes only and is not intended for commercial use or public distribution. If you are a rights holder and have concerns about the use of any content, please contact thornhik@oregonstate.edu.
