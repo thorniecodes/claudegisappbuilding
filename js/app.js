@@ -852,6 +852,28 @@ function exitTour() {
   map.closePopup();
 }
 
+// ── ABOUT MODAL ────────────────────────────────────────────────────────────────
+function openAboutModal() {
+  const modal = document.getElementById('about-modal');
+  const overlay = document.getElementById('about-overlay');
+  modal._returnFocus = document.activeElement;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  overlay.classList.remove('hidden');
+  overlay.setAttribute('aria-hidden', 'false');
+  setTimeout(() => modal.querySelector('button, [href], [tabindex]')?.focus(), 50);
+}
+
+function closeAboutModal() {
+  const modal = document.getElementById('about-modal');
+  const overlay = document.getElementById('about-overlay');
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  overlay.classList.add('hidden');
+  overlay.setAttribute('aria-hidden', 'true');
+  modal._returnFocus?.focus();
+}
+
 // ── NEAR ME ────────────────────────────────────────────────────────────────────
 function goToNearMe() {
   if (!navigator.geolocation) {
@@ -903,10 +925,17 @@ document.getElementById('tour-next')?.addEventListener('click', () => {
 
 document.getElementById('tour-exit')?.addEventListener('click', exitTour);
 
+document.getElementById('about-btn')?.addEventListener('click', openAboutModal);
+document.getElementById('sidebar-about-btn')?.addEventListener('click', openAboutModal);
+document.getElementById('about-close')?.addEventListener('click', closeAboutModal);
+document.getElementById('about-overlay')?.addEventListener('click', closeAboutModal);
+
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   const filterPanel = document.getElementById('filter-panel');
   const tourSheet = document.getElementById('tour-sheet');
+  const aboutModal = document.getElementById('about-modal');
   if (filterPanel?.getAttribute('aria-hidden') === 'false') closeFilterPanel();
   else if (tourSheet?.getAttribute('aria-hidden') === 'false') closeTourSheet();
+  else if (aboutModal?.getAttribute('aria-hidden') === 'false') closeAboutModal();
 });

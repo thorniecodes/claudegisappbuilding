@@ -339,8 +339,35 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
   #tour-progress { left: var(--sidebar-w); }
   #tour-sheet { left: var(--sidebar-w); border-radius: 12px 12px 0 0; }
   #tour-overlay { left: var(--sidebar-w); }
+  #about-modal { left: var(--sidebar-w); border-radius: 12px 12px 0 0; }
+  #about-overlay { left: var(--sidebar-w); }
 
   #fab-area { right: 16px; }
+
+  .sidebar-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .sidebar-footer-about {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px 0;
+    min-height: 44px;
+  }
+
+  .sidebar-footer-about:hover { color: var(--text-primary); }
 }
 
 /* ── SIDEBAR FILTER SECTION (desktop inline) ── */
@@ -742,4 +769,86 @@ body.tour-active #map { top: calc(var(--header-h) + 46px); }
 #a11y-toast.visible {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+/* ── ABOUT MODAL ── */
+#about-modal {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-radius: 12px 12px 0 0;
+  z-index: 750;
+  transform: translateY(110%);
+  transition: transform 0.3s ease;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#about-modal.open { transform: translateY(0); }
+
+.about-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.about-modal-header h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+.about-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 16px;
+  overscroll-behavior: contain;
+}
+
+.about-modal-body p {
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.about-modal-body a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.about-modal-body a:hover { color: var(--text-primary); }
+
+.about-credits {
+  margin-bottom: 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.about-credits dt {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-top: 10px;
+}
+
+.about-credits dd {
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-left: 0;
+}
+
+.about-official {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  font-weight: 500 !important;
+  text-align: center;
 }
