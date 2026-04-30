@@ -273,6 +273,16 @@ function handlePinClick(props, lat, lng, marker) {
   state.activeId = props.id;
   activateMarker(props.id);
   map.closePopup();
+
+  if (state.tour) {
+    const stopIndex = state.tour.stops.indexOf(props.id);
+    if (stopIndex !== -1) {
+      goToTourStop(stopIndex);
+      if (isMobile()) expandDrawer();
+      return;
+    }
+  }
+
   showPinPopup(props, lat, lng);
   if (!isMobile()) openDetail(props);
 }
