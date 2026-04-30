@@ -121,7 +121,7 @@ function saveVisited() {
 }
 
 // ── MAP INIT ───────────────────────────────────────────────────────────────────
-const map = L.map('map', { zoomControl: false }).setView(INITIAL_CENTER, INITIAL_ZOOM);
+const map = L.map('map', { zoomControl: false, tap: false }).setView(INITIAL_CENTER, INITIAL_ZOOM);
 
 L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
